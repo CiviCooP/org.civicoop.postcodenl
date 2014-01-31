@@ -84,12 +84,12 @@ function civicrm_api3_postcode_n_l_get($params) {
       //huisnummer needs an between huisnummer_van and huisnummer_tot
       //also there needs to be a check on even or odd
       $even = ($value % 2 == 0 ? 1 : 0);
-      $where .= "AND `even` = %".$i;
-      $values[$i] = array($even, 'int');
+      $where .= " AND `even` = %".$i;
+      $values[$i] = array($even, 'Integer');
       $i++;
       
       $where .= " AND %".$i." BETWEEN `huisnummer_van` AND `huisnummer_tot`";
-      $values[$i] = array($value, 'int');
+      $values[$i] = array($value, 'Integer');
       $i++;      
     } else {
       $where .= " AND `".$field."` = %".$i;
@@ -102,8 +102,13 @@ function civicrm_api3_postcode_n_l_get($params) {
   
   $returnValues = array();
   while($dao->fetch()) {
-    var_dump($dao->_resultFields); exit();
-    $returnValues[$dao->id] = $dao;
+    $row = array();
+    foreach($returnFields as $field) {
+      if (isset($dao->$field)) {
+        $row[$field] = $dao->$field;
+      }
+    }
+    $returnValues[$dao->id] = $row;
   }
   
   return civicrm_api3_create_success($returnValues, $params, 'PostcodeNL', 'get');
