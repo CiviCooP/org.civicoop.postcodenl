@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <extension key="org.civicoop.postcodenl" type="module">
   <file>postcodenl</file>
-  <name>FIXME</name>
-  <description>FIXME</description>
-  <license>AGPL-3.0</license>
+  <name>Dutch postcode</name>
+  <description>Automaticly autocomplete an address based on a dutch postcode</description>
+  <license>Academic Free License V3.0</license>
   <maintainer>
     <author>Jaap Jansma</author>
     <email>jaap.jansma@civicoop.org</email>
