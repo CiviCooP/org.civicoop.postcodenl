@@ -42,6 +42,7 @@ function civicrm_api3_postcode_n_l_get($params) {
     'even',
     'provincie',
     'gemeente',
+    'woonplaats',
     'wijk',
     'buurt'
   );
@@ -65,7 +66,7 @@ function civicrm_api3_postcode_n_l_get($params) {
         if (strlen($postcode_2pp) == 2) {
           $validatedParams['postcode_letter'] = strtoupper($postcode_2pp);
         }
-      } else {
+      } elseif (!empty($value)) {
         $validatedParams[$key] = $value;
       }
     }

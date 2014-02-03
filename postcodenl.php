@@ -125,3 +125,18 @@ function postcodenl_civicrm_caseTypes(&$caseTypes) {
 function postcodenl_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _postcodenl_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
+
+/**
+ * Implementation of hook_civicrm_buildForm
+ * 
+ * Add a javascript file for postcode retrieving to the form
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_buildForm
+ */
+function postcodenl_civicrm_buildForm($formName, &$form) {
+  if($formName=='CRM_Contact_Form_Inline_Address'){
+    //CRM_Core_Resources::singleton()->addScriptFile('org.civicoop.postcodenl', 'postcodenl.js');
+    
+    CRM_Core_Resources::singleton()->addScript("alert('hoi');");
+  }
+}

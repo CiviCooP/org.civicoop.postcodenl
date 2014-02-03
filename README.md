@@ -31,6 +31,7 @@ The api returns the following fields
 * adres *Street name*
 * provincie *Province*
 * gemeente *municipality*
+* woonplaats *city*
 * wijk *area*
 * buurt *neighbourhoud*
 
@@ -40,3 +41,9 @@ Usage
 This extension is going to provide default mechanism for the address editing forms for autocompleting the addresses based on querieng the API.
 
 Other extensions (or maybe this one) are going to provide a mechanism to fill up the database table *civicrm_postcodenl* which contains all the postcode data. The reason for seperating this is so that we can focus on a working mechanism and other extension could focus on reading a certain format of the postcode table, e.g. the information from the kadaster, *BAG* is in XML, the information from d-centralize is in csv etc...
+
+
+Reuse of core templates
+-----------------------
+
+This extension reuses the core templates CRM/Contact/Form/Edit/Address/street_addresses.tpl  and CRM/Contact/Form/Edit/Address.tpl
