@@ -112,28 +112,7 @@ function postcodenl_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
  */
-function postcodenl_civicrm_navigationMenu( &$params ) {
-  //var_dump($params); exit();
-  
-  /*$maxKey = ( max( array_keys($params) ) );
-  foreach($params as $key => $item) {
-    if ($item['attributes']['nane'] == 'Administer') {
-      $params[$key]['child'][$maxKey+1]['attributes'] = array (
-         "label"=> ts('Import postcode from pro6pp'),
-          "name"=> ts('Import postcode from pro6pp'),
-          "url"=> "civicrm/admin/import/pro6pp",
-          "permission" => "administer CiviCRM",
-          "operator"  => "",
-          "separator" => NULL,
-          "parentID" => $key,
-          "navID"=> $maxKey+1,
-          "active"=>  "1",
-        );
-      $params[$key]['child'][$maxKey+1]['child'] = NULL;
-    }
-  }
-  var_dump($params); exit();*/
-  
+function postcodenl_civicrm_navigationMenu( &$params ) {  
   $item = array (
     "name"=> ts('Import postcode from pro6pp'),
     "url"=> "civicrm/admin/import/pro6pp",
@@ -142,3 +121,39 @@ function postcodenl_civicrm_navigationMenu( &$params ) {
   _postcodenl_civix_insert_navigation_menu($params, "Administer", $item);
 }
 
+/**
+ * Implementation hook_civicrm_post
+ * 
+ * Used to updated the info on gemeneete, buurtnaam, buurtcode, wijkcode
+ * 
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_post
+ */
+function postcodenl_civicrm_post( $op, $objectName, $objectId, &$objectRef ) {
+  if ($objectName == 'Address' && ($op == 'create' || $op == 'edit')) {
+    
+    $custom_group = civicrm_api3('CustomGroup', 'getsingle', array('name' => 'Adresgegevens'));
+    $gemeente_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Gemeente', 'custom_group_id' => $custom_group['id']));
+    $buurt_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Buurt', 'custom_group_id' => $custom_group['id']));
+    $buurtcode_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Buurtcode', 'custom_group_id' => $custom_group['id']));
+    $wijkcode_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Wijkcode', 'custom_group_id' => $custom_group['id']));
+    
+    if ($objectId) {
+      CRM_Core_DAO::executeQuery("DELETE FROM `".$custom_group['table_name']. "` WHERE `entity_id` = '".$objectId."'");
+    }
+    
+    $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $objectRef->postal_code, 'huisnummer' => $objectRef->street_number));
+    if (isset($info['values']) && is_array($info['values'])) {
+      $values = reset($info['values']);
+      
+      CRM_Core_DAO::executeQuery("INSERT INTO `".$custom_group['table_name']."` "
+          . "(`entity_id`, `".$gemeente_field['column_name'] ."`, `".$buurt_field['column_name']."`, `".$buurtcode_field['column_name']."`, `".$wijkcode_field['column_name']."`) VALUES "
+          . "("
+          . "'".$objectId."', '".$values['gemeente']."', '".$values['cbs_buurtnaam']."', '".$values['cbs_buurtcode']."', '".$values['cbs_wijkcode']."'"
+          . ");"
+      );
+      
+    }
+  }
+  
+  
+}
