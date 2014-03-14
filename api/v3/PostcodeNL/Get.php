@@ -43,8 +43,11 @@ function civicrm_api3_postcode_n_l_get($params) {
     'provincie',
     'gemeente',
     'woonplaats',
-    'wijk',
-    'buurt'
+    'cbs_wijkcode',
+    'cbs_buurtcode',
+    'cbs_buurtnaam',
+    'latitude',
+    'longitude'
   );
   
   /* 

@@ -9,8 +9,11 @@ CREATE TABLE IF NOT EXISTS `civicrm_postcodenl` (
   `provincie` varchar(255) NOT NULL,
   `gemeente` varchar(255) NOT NULL,
   `woonplaats` varchar(255) NOT NULL,
-  `wijk` varchar(255) NOT NULL,
-  `buurt` varchar(255) NOT NULL,
+  `cbs_wijkcode` varchar(255) NOT NULL,
+  `cbs_buurtcode` varchar(255) NOT NULL,
+  `cbs_buurtnaam` varchar(255) NOT NULL,
+  `latitude` DOUBLE NULL,
+  `longitude` DOUBLE NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
@@ -25,7 +28,20 @@ CREATE TABLE IF NOT EXISTS `civicrm_pro6pp_import` (
   `provincie` varchar(255) NOT NULL,
   `gemeente` varchar(255) NOT NULL,
   `woonplaats` varchar(255) NOT NULL,
-  `wijk` varchar(255) NOT NULL,
-  `buurt` varchar(255) NOT NULL,
+  `cbs_wijkcode` varchar(255) NOT NULL,
+  `cbs_buurtcode` varchar(255) NOT NULL,
+  `cbs_buurtnaam` varchar(255) NOT NULL,
+  `latitude` DOUBLE NULL,
+  `longitude` DOUBLE NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `civicrm_pro6pp_import_cbsbuurt` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `postcode_nr` int(4) NOT NULL,
+  `postcode_letter` varchar(2) NOT NULL,
+  `cbs_wijkcode` varchar(255) NOT NULL,
+  `cbs_buurtcode` varchar(255) NOT NULL,
+  `cbs_buurtnaam` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;

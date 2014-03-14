@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/import/pro6pp</path>
+    <page_callback>CRM_Postcodenl_Page_ImportPro6pp</page_callback>
+    <title>ImportPro6pp</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+</menu>
