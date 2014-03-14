@@ -19,7 +19,11 @@
 function civicrm_api3_pro6pp_import($params) {
   try {
     
-    
+    if (!isset($params['authkey'])) {
+      return civicrm_api3_create_error(ts('Authkey is required'), $params);
+    }
+
+    $authkey = $params['authkey'];
     
     set_time_limit(-1);
     

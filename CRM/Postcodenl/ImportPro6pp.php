@@ -83,11 +83,16 @@ class CRM_Postcodenl_ImportPro6pp {
       if (strlen($values) && ($lineNr % 1000 == 0)) {
         CRM_Core_DAO::executeQuery($sql . $values . ";");
         $values = "";
+        usleep(50); //wait for the database, so the query below is executed faster
       }
     }
     if (strlen($values)) {
       CRM_Core_DAO::executeQuery($sql . $values . ";");
+      usleep(100); //wait for the database, so the query below is executed faster
     }
+    
+    //CRM_Core_Transaction::willCommit();
+    
     $this->closeFP($fp);
 
     return $lineNr;
@@ -134,23 +139,32 @@ class CRM_Postcodenl_ImportPro6pp {
       if (strlen($values) && ($lineNr % 1000 == 0)) {
         CRM_Core_DAO::executeQuery($sql . $values . ";");
         $values = "";
+        usleep(50); //wait for the database, so the query below is executed faster
       }
     }
     if (strlen($values)) {
       CRM_Core_DAO::executeQuery($sql . $values . ";");
+      usleep(50); //wait for the database, so the query below is executed faster
     }
+    
+    //CRM_Core_Transaction::willCommit();
+    
     $this->closeFP($fp);
+    
+    sleep(5); //wait for the database, so the query below is executed faster
     
     CRM_Core_DAO::executeQuery("UPDATE `civicrm_pro6pp_import` `i` "
         . "LEFT JOIN `civicrm_pro6pp_import_cbsbuurt` `cbs` ON `i`.`postcode_letter` = `cbs`.`postcode_letter` AND `i`.`postcode_nr` = `cbs`.`postcode_nr`"
         . "SET `i`.`cbs_buurtcode` = `cbs`.`cbs_buurtcode`, `i`.`cbs_buurtnaam` = `cbs`.`cbs_buurtnaam`, `i`.`cbs_wijkcode` = `cbs`.`cbs_wijkcode`;");
+    
+    //CRM_Core_Transaction::willCommit();
     
     return $lineNr;
   }
   
   public function copy() {
     CRM_Core_DAO::executeQuery("TRUNCATE `civicrm_postcodenl`;");
-    CRM_Core_DAO::escapeString("INSERT INTO `civicrm_postcodenl` SELECT * FROM `civicrm_pro6pp_import`");
+    CRM_Core_DAO::executeQuery("INSERT INTO `civicrm_postcodenl` SELECT * FROM `civicrm_pro6pp_import`");
   }
 
   /**

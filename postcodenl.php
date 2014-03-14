@@ -108,22 +108,37 @@ function postcodenl_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
 }
 
 /**
- * Implementation of hook_civicrm_pre
- * 
- * make sure street_address, street_name, street_number and street_unit are displayed
- * correctly when address in The Netherlands or Belgium
+ * Implementation of hook_civicrm_navigationMenu
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
  */
-function postcodenl_civicrm_pre($op, $objectName, $objectId, &$objectRef) {
-  //streetformatnl_civicrm_pre($op, $objectName, $objectId, $objectRef);
+function postcodenl_civicrm_navigationMenu( &$params ) {
+  //var_dump($params); exit();
+  
+  /*$maxKey = ( max( array_keys($params) ) );
+  foreach($params as $key => $item) {
+    if ($item['attributes']['nane'] == 'Administer') {
+      $params[$key]['child'][$maxKey+1]['attributes'] = array (
+         "label"=> ts('Import postcode from pro6pp'),
+          "name"=> ts('Import postcode from pro6pp'),
+          "url"=> "civicrm/admin/import/pro6pp",
+          "permission" => "administer CiviCRM",
+          "operator"  => "",
+          "separator" => NULL,
+          "parentID" => $key,
+          "navID"=> $maxKey+1,
+          "active"=>  "1",
+        );
+      $params[$key]['child'][$maxKey+1]['child'] = NULL;
+    }
+  }
+  var_dump($params); exit();*/
+  
+  $item = array (
+    "name"=> ts('Import postcode from pro6pp'),
+    "url"=> "civicrm/admin/import/pro6pp",
+    "permission" => "administer CiviCRM",
+  );
+  _postcodenl_civix_insert_navigation_menu($params, "Administer", $item);
 }
 
-/**
- * Implementation of hook_civicrm_buildForm
- * 
- * Add a javascript file for postcode retrieving to the form
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_buildForm
- */
-function postcodenl_civicrm_buildForm($formName, &$form) {
-  //streetformatnl_civicrm_buildForm($formName, $form);
-}
