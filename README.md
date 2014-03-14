@@ -7,6 +7,11 @@ This extension uses a table with all the dutch postcodes to autocomplete the add
 
 This extension has also an API for retrieving the postcode by different parameters.
 
+Requirements
+------------
+
+In order to use the pro6pp database import functionality you need PHP with the Zip extension enabled. See http://www.php.net/manual/en/book.zip.php
+
 API
 ---
 

@@ -127,6 +127,16 @@ function postcodenl_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
 }
 
 /**
+ * Implementation of hook_civicrm_pre
+ * 
+ * make sure street_address, street_name, street_number and street_unit are displayed
+ * correctly when address in The Netherlands or Belgium
+ */
+function postcodenl_civicrm_pre($op, $objectName, $objectId, &$objectRef) {
+  //streetformatnl_civicrm_pre($op, $objectName, $objectId, $objectRef);
+}
+
+/**
  * Implementation of hook_civicrm_buildForm
  * 
  * Add a javascript file for postcode retrieving to the form
@@ -134,9 +144,5 @@ function postcodenl_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_buildForm
  */
 function postcodenl_civicrm_buildForm($formName, &$form) {
-  if($formName=='CRM_Contact_Form_Inline_Address'){
-    //CRM_Core_Resources::singleton()->addScriptFile('org.civicoop.postcodenl', 'postcodenl.js');
-    
-    CRM_Core_Resources::singleton()->addScript("alert('hoi');");
-  }
+  //streetformatnl_civicrm_buildForm($formName, $form);
 }

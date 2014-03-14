@@ -125,6 +125,9 @@ function processAddressFields( name, blockId, loadData ) {
        }
 }
 
+cj(document).ready(function() {
+    processAddressFields( 'addressElements' , '{/literal}{$blockId}{literal}', 1 );
+});
 </script>
 {/literal}
 {/if}
