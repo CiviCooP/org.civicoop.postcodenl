@@ -130,7 +130,6 @@ function postcodenl_civicrm_navigationMenu( &$params ) {
  */
 function postcodenl_civicrm_post( $op, $objectName, $objectId, &$objectRef ) {
   if ($objectName == 'Address' && ($op == 'create' || $op == 'edit')) {
-    
     $custom_group = civicrm_api3('CustomGroup', 'getsingle', array('name' => 'Adresgegevens'));
     $gemeente_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Gemeente', 'custom_group_id' => $custom_group['id']));
     $buurt_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Buurt', 'custom_group_id' => $custom_group['id']));
@@ -142,17 +141,18 @@ function postcodenl_civicrm_post( $op, $objectName, $objectId, &$objectRef ) {
     }
     
     try {
-      $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $objectRef->postal_code, 'huisnummer' => $objectRef->street_number));
-      if (isset($info['values']) && is_array($info['values'])) {
-        $values = reset($info['values']);
+      if ($objectRef->country_id == 1152) {
+        $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $objectRef->postal_code, 'huisnummer' => $objectRef->street_number));
+        if (isset($info['values']) && is_array($info['values'])) {
+          $values = reset($info['values']);
 
-        CRM_Core_DAO::executeQuery("INSERT INTO `".$custom_group['table_name']."` "
+          CRM_Core_DAO::executeQuery("INSERT INTO `".$custom_group['table_name']."` "
             . "(`entity_id`, `".$gemeente_field['column_name'] ."`, `".$buurt_field['column_name']."`, `".$buurtcode_field['column_name']."`, `".$wijkcode_field['column_name']."`) VALUES "
             . "("
             . "'".$objectId."', '".$values['gemeente']."', '".$values['cbs_buurtnaam']."', '".$values['cbs_buurtcode']."', '".$values['cbs_wijkcode']."'"
             . ");"
-        );
-
+          );
+        }
       }
     } catch (Exception $e) {
       //do nothing on exception, possibly the postcode doesn't exist
@@ -162,7 +162,6 @@ function postcodenl_civicrm_post( $op, $objectName, $objectId, &$objectRef ) {
 
 
 function postcodenl_civicrm_alterContent(  &$content, $context, $tplName, &$object ) {
-  //var_dump(get_class($object)); echo "<hr>";
   if ($object instanceof CRM_Contact_Form_Inline_Address) {
     $locBlockNo = CRM_Utils_Request::retrieve('locno', 'Positive', CRM_Core_DAO::$_nullObject, TRUE, NULL, $_REQUEST);
     $template = CRM_Core_Smarty::singleton();
@@ -173,12 +172,6 @@ function postcodenl_civicrm_alterContent(  &$content, $context, $tplName, &$obje
     $template = CRM_Core_Smarty::singleton();
     $content .= $template->fetch('CRM/Contact/Form/Edit/postcodenl_contact_js.tpl');
   }
-}
-
-function postcodenl_civicrm_alterTemplateFile($formName, &$form, $context, &$tplName) {
-  /*if ($formName == 'CRM_Contact_Form_Contact') {
-   
-  }*/
 }
 
 function postcodenl_civicrm_buildForm( $formName, &$form ) {
