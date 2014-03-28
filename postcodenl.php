@@ -158,6 +158,37 @@ function postcodenl_civicrm_post( $op, $objectName, $objectId, &$objectRef ) {
       //do nothing on exception, possibly the postcode doesn't exist
     }
   }
-  
-  
+}
+
+
+function postcodenl_civicrm_alterContent(  &$content, $context, $tplName, &$object ) {
+  //var_dump(get_class($object)); echo "<hr>";
+  if ($object instanceof CRM_Contact_Form_Inline_Address) {
+    $locBlockNo = CRM_Utils_Request::retrieve('locno', 'Positive', CRM_Core_DAO::$_nullObject, TRUE, NULL, $_REQUEST);
+    $template = CRM_Core_Smarty::singleton();
+    $template->assign('blockId', $locBlockNo);
+    $content .= $template->fetch('CRM/Contact/Form/Edit/Address/postcodenl_js.tpl');
+  }
+  if ($object instanceof CRM_Contact_Form_Contact) {
+    $template = CRM_Core_Smarty::singleton();
+    $content .= $template->fetch('CRM/Contact/Form/Edit/postcodenl_contact_js.tpl');
+  }
+}
+
+function postcodenl_civicrm_alterTemplateFile($formName, &$form, $context, &$tplName) {
+  /*if ($formName == 'CRM_Contact_Form_Contact') {
+   
+  }*/
+}
+
+function postcodenl_civicrm_buildForm( $formName, &$form ) {
+    if ($formName == 'CRM_Contact_Form_Contact') {
+      CRM_Core_Resources::singleton()->addScriptFile('org.civicoop.postcodenl', 'postcodenl.js');
+    }
+}
+
+function postcodenl_civicrm_pageRun( &$page ) {
+  if ($page instanceof CRM_Contact_Page_View_Summary) {
+    CRM_Core_Resources::singleton()->addScriptFile('org.civicoop.postcodenl', 'postcodenl.js');
+  }
 }
