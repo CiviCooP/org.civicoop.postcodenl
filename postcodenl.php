@@ -141,17 +141,21 @@ function postcodenl_civicrm_post( $op, $objectName, $objectId, &$objectRef ) {
       CRM_Core_DAO::executeQuery("DELETE FROM `".$custom_group['table_name']. "` WHERE `entity_id` = '".$objectId."'");
     }
     
-    $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $objectRef->postal_code, 'huisnummer' => $objectRef->street_number));
-    if (isset($info['values']) && is_array($info['values'])) {
-      $values = reset($info['values']);
-      
-      CRM_Core_DAO::executeQuery("INSERT INTO `".$custom_group['table_name']."` "
-          . "(`entity_id`, `".$gemeente_field['column_name'] ."`, `".$buurt_field['column_name']."`, `".$buurtcode_field['column_name']."`, `".$wijkcode_field['column_name']."`) VALUES "
-          . "("
-          . "'".$objectId."', '".$values['gemeente']."', '".$values['cbs_buurtnaam']."', '".$values['cbs_buurtcode']."', '".$values['cbs_wijkcode']."'"
-          . ");"
-      );
-      
+    try {
+      $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $objectRef->postal_code, 'huisnummer' => $objectRef->street_number));
+      if (isset($info['values']) && is_array($info['values'])) {
+        $values = reset($info['values']);
+
+        CRM_Core_DAO::executeQuery("INSERT INTO `".$custom_group['table_name']."` "
+            . "(`entity_id`, `".$gemeente_field['column_name'] ."`, `".$buurt_field['column_name']."`, `".$buurtcode_field['column_name']."`, `".$wijkcode_field['column_name']."`) VALUES "
+            . "("
+            . "'".$objectId."', '".$values['gemeente']."', '".$values['cbs_buurtnaam']."', '".$values['cbs_buurtcode']."', '".$values['cbs_wijkcode']."'"
+            . ");"
+        );
+
+      }
+    } catch (Exception $e) {
+      //do nothing on exception, possibly the postcode doesn't exist
     }
   }
   
