@@ -40,6 +40,32 @@ The api returns the following fields
 * wijk *area*
 * buurt *neighbourhoud*
 
+Autocomplete
+------------
+
+There is an autocomplete available. You can use the autocomplete on any field by adding the follwoing code:
+
+    <script type="text/javascript">
+    {literal}
+        cj(function() {
+        var gemeenteUrl = "/civicrm/ajax/postcodenl/autocomplete?reset=1&field=gemeente";
+        cj('#gemeente').autocomplete( gemeenteUrl, { 
+            width : 280, 
+            selectFirst : true, 
+            matchContains: true
+        });
+    });
+    {/literal}
+    </script>
+
+Field to use in the autocomplete are
+
+* adres
+* woonplaats
+* provincie
+* gemeente
+* cbs_buurtnaam
+
 Usage
 -----
 

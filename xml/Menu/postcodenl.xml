@@ -6,4 +6,9 @@
     <title>Import postcode data from Pro6pp</title>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
+  <item>
+     <path>civicrm/ajax/postcodenl/autocomplete</path>
+     <page_callback>CRM_Postcodenl_Page_AJAX::autocomplete</page_callback>
+     <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>
