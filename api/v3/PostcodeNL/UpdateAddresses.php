@@ -9,7 +9,8 @@
  * @see http://wiki.civicrm.org/confluence/display/CRM/API+Architecture+Standards
  */
 function _civicrm_api3_postcode_n_l_updateaddresses_spec(&$spec) {
-  $spec['start'] = array('title' => 'Lmit of addresses to update at once');
+  $spec['limit'] = array('title' => 'Lmit of addresses to update at once');
+  $spec['check_street']['api.default'] = 0;
 }
 
 /**
@@ -28,6 +29,11 @@ function civicrm_api3_postcode_n_l_updateaddresses($inputParams) {
   if (isset($inputParams['limit'])) {
     $limit = (int) $inputParams['limit'];
   }
+  
+  $check_street = false;
+  if (isset($inputParams['check_street']) && !empty($inputParams['check_street'])) {
+    $check_street = true;
+  }
 
   $select = "SELECT `a`.`id` AS `address_id`, `p`.*, `a`.`street_number`, `a`.`street_unit`, `a`.`contact_id`";
 
@@ -43,10 +49,11 @@ function civicrm_api3_postcode_n_l_updateaddresses($inputParams) {
             )";
   $from .= " LEFT JOIN `civicrm_state_province` `prov` ON `a`.`state_province_id` = `prov`.`id`";
   $where = " WHERE `a`.`country_id` = 1152 ";
-  $clause = "`a`.`street_name` != `p`.`adres` COLLATE utf8_unicode_ci OR `a`.`city` != `p`.`woonplaats` COLLATE utf8_unicode_ci";
+  $clause = "`a`.`city` != `p`.`woonplaats` COLLATE utf8_unicode_ci";
+  if ($check_street) {
+    $clause .= " OR `a`.`street_name` != `p`.`adres` COLLATE utf8_unicode_ci";
+  }
   $clause .= " OR `prov`.`id` IS NULL or `prov`.`name` != `p`.`provincie` COLLATE utf8_unicode_ci";
-  $update = " SET `a`.`street_name` = `p`.`adres`, `a`.`city` = `p`.`woonplaats`";
-
 
   $group = civicrm_api('CustomGroup', 'getsingle', array('name' => 'Adresgegevens', 'extends' => 'Address', 'version' => 3));
   $gemeente = civicrm_api('CustomField', 'getsingle', array('name' => 'Gemeente', 'custom_group_id' => $group['id'], 'version' => 3));
@@ -82,7 +89,9 @@ function civicrm_api3_postcode_n_l_updateaddresses($inputParams) {
   while ($dao->fetch()) {
     $params['id'] = $dao->address_id;
     $params['city'] = $dao->woonplaats;
-    $params['street_name'] = $dao->adres;
+    if ($check_street) {
+      $params['street_name'] = $dao->adres;
+    }
     $params['state_province'] = $dao->provincie;
     $params['street_address'] = trim($dao->adres . " " . $dao->street_number . $dao->street_unit);
     $params['street_parsing'] = 0;
