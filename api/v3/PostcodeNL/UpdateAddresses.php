@@ -9,7 +9,8 @@
  * @see http://wiki.civicrm.org/confluence/display/CRM/API+Architecture+Standards
  */
 function _civicrm_api3_postcode_n_l_updateaddresses_spec(&$spec) {
-  $spec['limit'] = array('title' => 'Lmit of addresses to update at once');
+  $spec['limit']['title'] = 'Lmit of addresses to update at once';
+  $spec['limit']['api.default'] = 1000;
   $spec['check_street']['api.default'] = 0;
 }
 
@@ -25,7 +26,9 @@ function _civicrm_api3_postcode_n_l_updateaddresses_spec(&$spec) {
 function civicrm_api3_postcode_n_l_updateaddresses($inputParams) {
   //get custom group and fields for cbs data
 
-  $limit = 25;
+  set_time_limit(-1); //make sure this job gets enough time to run
+  
+  $limit = 1000;
   if (isset($inputParams['limit'])) {
     $limit = (int) $inputParams['limit'];
   }

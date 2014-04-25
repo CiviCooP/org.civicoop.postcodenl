@@ -16,7 +16,7 @@ return array (
       'run_frequency' => 'Always',
       'api_entity' => 'PostcodeNL',
       'api_action' => 'UpdateAddresses',
-      'parameters' => 'limit=25&check_street=0',
+      'parameters' => 'limit=1000&check_street=0',
       'is_active' => '0',
     ),
   ),
