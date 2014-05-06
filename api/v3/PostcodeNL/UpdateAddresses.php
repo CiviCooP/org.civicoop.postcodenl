@@ -38,95 +38,25 @@ function civicrm_api3_postcode_n_l_updateaddresses($inputParams) {
     $check_street = true;
   }
 
-  $select = "SELECT `a`.`id` AS `address_id`, `p`.*, `a`.`street_number`, `a`.`street_unit`, `a`.`contact_id`";
-
-  $from = " `civicrm_address` `a`";
-  $from .= " INNER JOIN `civicrm_postcodenl` `p` ON (
-          LOWER(SUBSTR(`a`.`postal_code` FROM 1 FOR 4)) = LOWER(`p`.`postcode_nr`) COLLATE utf8_unicode_ci
-          AND
-          LOWER(SUBSTR(`a`.`postal_code` FROM -2)) = LOWER(`p`.`postcode_letter`) COLLATE utf8_unicode_ci
-          AND
-          IF((`a`.`street_number`%2) = 0, 1, 0) = `p`.`even` 
-          AND 
-          (`a`.`street_number` BETWEEN `p`.`huisnummer_van` AND `p`.`huisnummer_tot`)
-            )";
-  $from .= " LEFT JOIN `civicrm_state_province` `prov` ON `a`.`state_province_id` = `prov`.`id`";
-  $where = " WHERE `a`.`country_id` = 1152 ";
-  $clause = "`a`.`city` != `p`.`woonplaats` COLLATE utf8_unicode_ci";
-  if ($check_street) {
-    $clause .= " OR `a`.`street_name` != `p`.`adres` COLLATE utf8_unicode_ci";
-  }
-  $clause .= " OR `prov`.`id` IS NULL or `prov`.`name` != `p`.`provincie` COLLATE utf8_unicode_ci";
-
-  $group = civicrm_api('CustomGroup', 'getsingle', array('name' => 'Adresgegevens', 'extends' => 'Address', 'version' => 3));
-  $gemeente = civicrm_api('CustomField', 'getsingle', array('name' => 'Gemeente', 'custom_group_id' => $group['id'], 'version' => 3));
-  $buurt = civicrm_api('CustomField', 'getsingle', array('name' => 'Buurt', 'custom_group_id' => $group['id'], 'version' => 3));
-  $buurtcode = civicrm_api('CustomField', 'getsingle', array('name' => 'Buurtcode', 'custom_group_id' => $group['id'], 'version' => 3));
-  $wijkcode = civicrm_api('CustomField', 'getsingle', array('name' => 'Wijkcode', 'custom_group_id' => $group['id'], 'version' => 3));
-
-  if (isset($group['table_name'])) {
-    $from .= " LEFT JOIN `" . $group['table_name'] . "` `g` ON `a`.`id` = `g`.`entity_id` ";
-  }
-  if (isset($gemeente['column_name'])) {
-    $clause .= " OR `p`.`gemeente` !=  `g`.`" . $gemeente['column_name'] . "` COLLATE utf8_unicode_ci";
-    $update .= ", `g`.`" . $gemeente['column_name'] . "` = `p`.`gemeente`";
-  }
-  if (isset($buurt['column_name'])) {
-    $clause .= " OR `p`.`cbs_buurtnaam` !=  `g`.`" . $buurt['column_name'] . "` COLLATE utf8_unicode_ci";
-    $update .= ", `g`.`" . $buurt['column_name'] . "` = `p`.`cbs_buurtnaam`";
-  }
-  if (isset($buurtcode['column_name'])) {
-    $clause .= " OR `p`.`cbs_buurtcode` !=  `g`.`" . $buurtcode['column_name'] . "` COLLATE utf8_unicode_ci";
-    $update .= ", `g`.`" . $buurtcode['column_name'] . "` = `p`.`cbs_buurtcode`";
-  }
-  if (isset($wijkcode['column_name'])) {
-    $clause .= " OR `p`.`cbs_wijkcode` !=  `g`.`" . $wijkcode['column_name'] . "` COLLATE utf8_unicode_ci";
-    $update .= ", `g`.`" . $wijkcode['column_name'] . "` = `p`.`cbs_wijkcode`";
-  }
-
-  $sql = $select . " FROM " . $from . $where . " AND (" . $clause . ") LIMIT " . $limit;
-  //$updateSql = "UPDATE " . $from . $update . $where . " AND (" . $clause . ") LIMIT " . $limit;
-
   $count = 0;
-  $dao = CRM_Core_DAO::executeQuery($sql);
-  while ($dao->fetch()) {
-    $params['id'] = $dao->address_id;
-    $params['city'] = $dao->woonplaats;
-    if ($check_street) {
-      $params['street_name'] = $dao->adres;
-    }
-    $params['state_province'] = $dao->provincie;
-    $params['street_address'] = trim($dao->adres . " " . $dao->street_number . $dao->street_unit);
-    $params['street_parsing'] = 0;
-    $params['contact_id'] = $dao->contact_id;
-
-    $customFields = array();
-    if (isset($gemeente['column_name'])) {
-      $customFields['custom_'.$gemeente['id']] = $dao->gemeente;
-    }
-    if (isset($buurt['column_name'])) {
-      $customFields['custom_'.$buurt['id']] = $dao->cbs_buurtnaam;
-    }
-    if (isset($buurtcode['column_name'])) {
-      $customFields['custom_'.$buurtcode['id']] = $dao->cbs_buurtcode;
-    }
-    if (isset($wijkcode['column_name'])) {
-      $customFields['custom_'.$wijkcode['id']] = $dao->cbs_wijkcode;
-    }
-    
-    $params['version'] = 3;
-    $result = civicrm_api('Address', 'Create', $params);
-    
-    if (count($customFields)) {
-      $customFields['entity_table'] = 'civicrm_address';
-      $customFields['entity_id'] = $dao->address_id;
-      $customFields['version']  = 3;
-      civicrm_api('CustomValue', 'Create', $customFields);
-    }
-    
-    $count++;
-    
+  $processed = 0;
+  $offset = CRM_Core_BAO_Setting::getItem('org.civicoop.postcodenl', 'job.updateaddresses.offset', NULL, 0);
+  $dao = CRM_Core_DAO::executeQuery("SELECT * FROM `civicrm_address` ORDER BY `id` LIMIT ".$offset.", ".$limit, array(), true, 'CRM_Core_DAO_Address');
+  while($dao->fetch()) {
+    $params = array();
+    CRM_Core_DAO::storeValues($dao, $params);
+    if (CRM_Postcodenl_Updater::checkAddress($dao->id, $params, $check_street)) {
+      $count ++;
+    }       
+    $processed++;
   }
+  if ($processed === 0) {
+    $offset = 0;
+  } else {
+    $offset = $offset + $processed;
+  }
+  
+  CRM_Core_BAO_Setting::setItem($offset, 'org.civicoop.postcodenl', 'job.updateaddresses.offset');
   
   return civicrm_api3_create_success(array('message' => 'Updated '.$count.' addresses'));
 }

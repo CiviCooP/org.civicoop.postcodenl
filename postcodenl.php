@@ -122,6 +122,17 @@ function postcodenl_civicrm_navigationMenu( &$params ) {
 }
 
 /**
+ * Implementation hook_civicrm_pre
+ * 
+ * Used to updated the info on gemeneete, buurtnaam, buurtcode, wijkcode
+ * 
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_pre
+ */
+function postcodenl_civicrm_pre($op, $objectName, $id, &$params) {
+  CRM_Postcodenl_Updater::pre($op, $objectName, $id, $params);
+}
+
+/**
  * Implementation hook_civicrm_post
  * 
  * Used to updated the info on gemeneete, buurtnaam, buurtcode, wijkcode
@@ -129,35 +140,7 @@ function postcodenl_civicrm_navigationMenu( &$params ) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_post
  */
 function postcodenl_civicrm_post( $op, $objectName, $objectId, &$objectRef ) {
-  if ($objectName == 'Address' && ($op == 'create' || $op == 'edit')) {
-    $custom_group = civicrm_api3('CustomGroup', 'getsingle', array('name' => 'Adresgegevens'));
-    $gemeente_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Gemeente', 'custom_group_id' => $custom_group['id']));
-    $buurt_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Buurt', 'custom_group_id' => $custom_group['id']));
-    $buurtcode_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Buurtcode', 'custom_group_id' => $custom_group['id']));
-    $wijkcode_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Wijkcode', 'custom_group_id' => $custom_group['id']));
-    
-    if ($objectId) {
-      CRM_Core_DAO::executeQuery("DELETE FROM `".$custom_group['table_name']. "` WHERE `entity_id` = '".$objectId."'");
-    }
-    
-    try {
-      if ($objectRef->country_id == 1152) {
-        $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $objectRef->postal_code, 'huisnummer' => $objectRef->street_number));
-        if (isset($info['values']) && is_array($info['values'])) {
-          $values = reset($info['values']);
-
-          CRM_Core_DAO::executeQuery("INSERT INTO `".$custom_group['table_name']."` "
-            . "(`entity_id`, `".$gemeente_field['column_name'] ."`, `".$buurt_field['column_name']."`, `".$buurtcode_field['column_name']."`, `".$wijkcode_field['column_name']."`) VALUES "
-            . "("
-            . "'".$objectId."', '".$values['gemeente']."', '".$values['cbs_buurtnaam']."', '".$values['cbs_buurtcode']."', '".$values['cbs_wijkcode']."'"
-            . ");"
-          );
-        }
-      }
-    } catch (Exception $e) {
-      //do nothing on exception, possibly the postcode doesn't exist
-    }
-  }
+  CRM_Postcodenl_Updater::post($op, $objectName, $objectId, $objectRef);
 }
 
 
