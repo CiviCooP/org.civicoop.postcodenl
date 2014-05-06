@@ -45,6 +45,17 @@ class CRM_Postcodenl_Updater {
     }
   }
 
+  /**
+   * Check and update an address
+   * 
+   * This function updates the adress given by id address_id based on the data in params
+   * returns true when the address is changed or false when nothing is changed
+   * 
+   * @param int $address_id
+   * @param array $params
+   * @param bool $check_street
+   * @return boolean
+   */
   public static function checkAddress($address_id, $params, $check_street) {
     $u = self::singleton();
     $update_params = $u->updateAddressFields($address_id, $params, $check_street);
@@ -105,12 +116,22 @@ class CRM_Postcodenl_Updater {
         }
       }
     } catch (Exception $e) {
-//do nothing on exception, possibly the postcode doesn't exist
+      //do nothing on exception, possibly the postcode doesn't exist
     }
 
     return $update_params;
   }
 
+  /**
+   * Parse the address for Dutch addresses
+   * Glues together the different parts of an address or explode
+   * the the street_adress into the different parts
+   * 
+   * Returns an array with the changed parts of the address
+   * 
+   * @param array $params
+   * @return array
+   */
   protected function parseAddress(&$params) {
     $update_params = array();
     if (isset($params['country_id']) && $params['country_id'] == 1152) {
@@ -251,6 +272,18 @@ class CRM_Postcodenl_Updater {
     return $result;
   }
 
+  /**
+   * Update the custom values for an address
+   * 
+   * The address data is given in params. The custom values are the community
+   * cbs_area code etc...
+   * 
+   * Returns true when the custom values are updated
+   *  
+   * @param int $address_id
+   * @param array $params
+   * @return boolean
+   */
   protected function updateCustomValues($address_id, $params) {
     $custom_values = CRM_Core_BAO_CustomValueTable::getEntityValues($address_id, 'Address');
 
@@ -274,7 +307,7 @@ class CRM_Postcodenl_Updater {
         }
       }
     } catch (Exception $e) {
-//do nothing on exception, possibly the postcode doesn't exist
+      //do nothing on exception, possibly the postcode doesn't exist
     }
 
     return false;
