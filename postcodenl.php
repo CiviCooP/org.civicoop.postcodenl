@@ -155,10 +155,15 @@ function postcodenl_civicrm_alterContent(  &$content, $context, $tplName, &$obje
     $template = CRM_Core_Smarty::singleton();
     $content .= $template->fetch('CRM/Contact/Form/Edit/postcodenl_contact_js.tpl');
   }
+  if ($object instanceof CRM_Event_Form_ManageEvent_Location) {
+    $template = CRM_Core_Smarty::singleton();
+    $content .= $template->fetch('CRM/Event/Form/ManageEvent/Location_js.tpl');
+  }
+  
 }
 
 function postcodenl_civicrm_buildForm( $formName, &$form ) {
-    if ($formName == 'CRM_Contact_Form_Contact') {
+    if ($formName == 'CRM_Contact_Form_Contact' || $formName == 'CRM_Event_Form_ManageEvent_Location') {
       CRM_Core_Resources::singleton()->addScriptFile('org.civicoop.postcodenl', 'postcodenl.js');
     }
 }

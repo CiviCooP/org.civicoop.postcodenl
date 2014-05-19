@@ -53,7 +53,7 @@ function postcodenl_retrieve(blockId, housenumber, postcode, toevoeging) {
 function postcodenl_init_addressBlock(blockId, address_table_id) {
     //var first_row = cj('#address_table_'+blockId+' tbody tr:first');
     var first_row = cj(address_table_id + ' tbody tr:first');
-
+    
     first_row.before('<tr class="hiddenElement postcodenl_input_row" id="postcodenl_row_' + blockId + '"><td>Postcode<br /><input class="form-text" id="postcodenl_postcode_' + blockId + '" /></td><td>Huisnummer<br /><input id="postcodenl_huisnummer_' + blockId + '" class="form-text six"></td><td>Toevoeging<br /><input id="postcodenl_huisnummer_toev_' + blockId + '" class="form-text six"></td></tr>');
 
     var postcode_field = cj('#postcodenl_postcode_' + blockId);
