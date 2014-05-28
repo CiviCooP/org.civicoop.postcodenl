@@ -207,7 +207,11 @@ class CRM_Postcodenl_ImportPro6pp {
     $bom = fread($handle, 2);
     rewind($handle);
     
-    if ($bom === chr(0xff) . chr(0xfe) || $bom === chr(0xfe) . chr(0xff)) {
+    if ($bom === chr(0xff) . chr(0xfe)) {
+      // UTF16 Byte Order Mark present
+      $encoding = 'UTF-16LE';
+    } 
+    elseif( $bom === chr(0xfe) . chr(0xff)) {
       // UTF16 Byte Order Mark present
       $encoding = 'UTF-16';
     } else {
