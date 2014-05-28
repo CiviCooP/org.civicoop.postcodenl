@@ -14,6 +14,13 @@ class CRM_Postcodenl_Upgrader extends CRM_Postcodenl_Upgrader_Base {
   public function install() {
     $this->executeSqlFile('sql/install.sql');
   }
+  
+  public function upgrade_1001() {
+    $this->ctx->log->info('Applying update 1001');
+    // this path is relative to the extension base dir
+    $this->executeSqlFile('sql/upgrade_1001.sql');
+    return TRUE;
+  }
 
   /**
    * Example: Run an external SQL script when the module is uninstalled

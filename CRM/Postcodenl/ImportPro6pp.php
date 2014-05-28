@@ -57,7 +57,6 @@ class CRM_Postcodenl_ImportPro6pp {
       $lat = $data[$headers['lat']];
       $lng = $data[$headers['lng']];
       $huisnummers = explode(";", $data[$headers['streetnumbers']]);
-      
       //one records could contain multiple sets of housenummbers, seperated by 1-10;40-50;
       foreach ($huisnummers as $huisnr) {
         $nrs = explode("-", $huisnr);
@@ -65,8 +64,13 @@ class CRM_Postcodenl_ImportPro6pp {
         $eind = false;
         $even = false;
         if (isset($nrs[0])) {
-          $start = $nrs[0];
-          $eind = $nrs[0];
+          if (empty($nrs[0])) {
+            $start = 0;
+            $eind = 0;
+          } else {
+            $start = $nrs[0];
+            $eind = $nrs[0];
+          }
           $even = ($start % 2 == 0 ? 1 : 0);
         }
         if (isset($nrs[1])) {
@@ -154,7 +158,7 @@ class CRM_Postcodenl_ImportPro6pp {
     sleep(5); //wait for the database, so the query below is executed faster
     
     CRM_Core_DAO::executeQuery("UPDATE `civicrm_pro6pp_import` `i` "
-        . "LEFT JOIN `civicrm_pro6pp_import_cbsbuurt` `cbs` ON `i`.`postcode_letter` = `cbs`.`postcode_letter` AND `i`.`postcode_nr` = `cbs`.`postcode_nr`"
+        . "INNER JOIN `civicrm_pro6pp_import_cbsbuurt` `cbs` ON `i`.`postcode_letter` = `cbs`.`postcode_letter` AND `i`.`postcode_nr` = `cbs`.`postcode_nr`"
         . "SET `i`.`cbs_buurtcode` = `cbs`.`cbs_buurtcode`, `i`.`cbs_buurtnaam` = `cbs`.`cbs_buurtnaam`, `i`.`cbs_wijkcode` = `cbs`.`cbs_wijkcode`;");
     
     //CRM_Core_Transaction::willCommit();
