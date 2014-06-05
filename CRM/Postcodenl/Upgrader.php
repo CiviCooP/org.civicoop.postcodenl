@@ -26,7 +26,16 @@ class CRM_Postcodenl_Upgrader extends CRM_Postcodenl_Upgrader_Base {
    * Example: Run an external SQL script when the module is uninstalled
    */
   public function uninstall() {
+    $this->removeCustomGroup('Adresgegevens');
    $this->executeSqlFile('sql/uninstall.sql');
+  }
+  
+  protected function removeCustomGroup($group_name) {
+    $gid = civicrm_api3('CustomGroup', 'getValue', array('return' => 'id', 'name' => $group_name));
+    if ($gid) {
+      civicrm_api3('CustomField', 'delete', array('custom_group_id' => $gid));
+      civicrm_api3('CustomGroup', 'delete', array('id' => $gid));
+    }
   }
 
   /**
