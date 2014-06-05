@@ -103,6 +103,19 @@ class CRM_Postcodenl_Updater {
             $params['city'] = $values['woonplaats'];
             $update_params['city'] = $values['woonplaats'];
           }
+          if (!isset($params['geo_code_1']) || ($params['geo_code_1'] != $values['latitude'])) {
+            $params['geo_code_1'] = $values['latitude'];
+            $update_params['geo_code_1'] = $values['latitude'];
+            $params['geo_code_2'] = $values['longitude'];
+            $update_params['geo_code_2'] = $values['longitude'];
+            $params['manual_geo_code'] = true;
+          } elseif (!isset($params['geo_code_2']) || ($params['geo_code_2'] != $values['longitude'])) {
+            $params['geo_code_1'] = $values['latitude'];
+            $update_params['geo_code_1'] = $values['latitude'];
+            $params['geo_code_2'] = $values['longitude'];
+            $update_params['geo_code_2'] = $values['longitude'];
+            $params['manual_geo_code'] = true;
+          }
 
           $state_province = new CRM_Core_DAO_StateProvince();
           $state_province->name = $values['provincie'];
