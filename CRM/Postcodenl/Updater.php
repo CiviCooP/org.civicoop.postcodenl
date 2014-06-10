@@ -90,7 +90,7 @@ class CRM_Postcodenl_Updater {
   protected function updateAddressFields($id, &$params, $check_street) {
     $update_params = array();
     try {
-      if (isset($params['country_id']) && $params['country_id'] == 1152) {
+      if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['street_number']) && isset($params['postal_code'])) {
         $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $params['postal_code'], 'huisnummer' => $params['street_number']));
         if (isset($info['values']) && is_array($info['values'])) {
           $values = reset($info['values']);
@@ -301,7 +301,7 @@ class CRM_Postcodenl_Updater {
     $custom_values = CRM_Core_BAO_CustomValueTable::getEntityValues($address_id, 'Address');
 
     try {
-      if (isset($params['country_id']) && $params['country_id'] == 1152) {
+      if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['postal_code']) && isset($params['street_number'])) {
         $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $params['postal_code'], 'huisnummer' => $params['street_number']));
         if (isset($info['values']) && is_array($info['values'])) {
           $values = reset($info['values']);
@@ -330,7 +330,7 @@ class CRM_Postcodenl_Updater {
     if (empty($custom_values[$custom_field['id']])) {
       $update_params['custom_' . $custom_field['id']] = $checkValue;
     }
-    if (strtolower($checkValue) != strtolower($custom_values[$custom_field['id']])) {
+    if (!empty($custom_values[$custom_field['id']]) && strtolower($checkValue) != strtolower($custom_values[$custom_field['id']])) {
       $update_params['custom_' . $custom_field['id']] = $checkValue;
     }
   }
