@@ -151,27 +151,26 @@ class CRM_Postcodenl_Updater {
       /*
        * glue if street_name <> empty and street_number <> empty, split otherwise if street_address not empty
        */
-      if (!empty($params['street_name']) && !empty($params['street_number'])) {
+      if (isset($params['street_address']) && !empty($params['street_address'])) {
+        $streetParts = $this->splitStreetAddressNl($params['street_address']);
+        $params['street_name'] = $streetParts['street_name'];
+        $update_params['street_name'] = $streetParts['street_name'];
+        if (isset($streetParts['street_number']) && !empty($streetParts['street_number'])) {
+          $params['street_number'] = $streetParts['street_number'];
+          $update_params['street_number'] = $streetParts['street_number'];
+        }
+        if (isset($streetParts['street_unit']) && !empty($streetParts['street_unit'])) {
+          $params['street_unit'] = $streetParts['street_unit'];
+          $update_params['street_unit'] = $streetParts['street_unit'];
+        }
+        $params['street_address'] = $this->glueStreetAddressNl($streetParts);
+        $update_params['street_address'] = $this->glueStreetAddressNl($streetParts);
+      } elseif (!empty($params['street_name']) && !empty($params['street_number'])) {
         $params['street_address'] = $this->glueStreetAddressNl($params);
         $update_params['street_address'] = $this->glueStreetAddressNl($params);
-      } else {
-        if (isset($params['street_address']) && !empty($params['street_address'])) {
-          $streetParts = $this->splitStreetAddressNl($params['street_address']);
-          $params['street_name'] = $streetParts['street_name'];
-          $update_params['street_name'] = $streetParts['street_name'];
-          if (isset($streetParts['street_number']) && !empty($streetParts['street_number'])) {
-            $params['street_number'] = $streetParts['street_number'];
-            $update_params['street_number'] = $streetParts['street_number'];
-          }
-          if (isset($streetParts['street_unit']) && !empty($streetParts['street_unit'])) {
-            $params['street_unit'] = $streetParts['street_unit'];
-            $update_params['street_unit'] = $streetParts['street_unit'];
-          }
-          $params['street_address'] = $this->glueStreetAddressNl($streetParts);
-          $update_params['street_address'] = $this->glueStreetAddressNl($streetParts);
-        }
       }
     }
+    
     return $update_params;
   }
 
