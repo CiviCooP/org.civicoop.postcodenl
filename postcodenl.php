@@ -2,6 +2,12 @@
 
 require_once 'postcodenl.civix.php';
 
+function postcodenl_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions) {
+  if ($entity == 'postcodeNL' && $action == 'get') {
+    $params['check_permissions'] = false; //allow everyone to use the postcode api
+  }
+}
+
 /**
  * Implementation of hook_civicrm_config
  *
