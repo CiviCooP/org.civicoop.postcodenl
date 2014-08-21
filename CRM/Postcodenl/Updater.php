@@ -151,7 +151,7 @@ class CRM_Postcodenl_Updater {
       /*
        * glue if street_name <> empty and street_number <> empty, split otherwise if street_address not empty
        */
-      if (isset($params['street_address']) && !empty($params['street_address'])) {
+      if (!empty($params['street_address']) && (empty($params['street_name']) || empty($params['street_number']))) {
         $streetParts = $this->splitStreetAddressNl($params['street_address']);
         $params['street_name'] = $streetParts['street_name'];
         $update_params['street_name'] = $streetParts['street_name'];
@@ -232,7 +232,7 @@ class CRM_Postcodenl_Updater {
           if ($foundStreetNumber == false) {
             $streetNumber = $addressPart;
             $foundStreetNumber = true;
-          } else {
+          } elseif ($foundStreetNumber) {
             $streetUnit .= " " . $addressPart;
           }
         } else {
@@ -277,9 +277,6 @@ class CRM_Postcodenl_Updater {
       $result['street_name'] = trim($streetName);
       $result['street_number'] = $streetNumber;
       $result['street_unit'] = trim($streetUnit);
-      /*
-       * if we still have no street_number, add contact to checkgroup
-       */
     }
     return $result;
   }
