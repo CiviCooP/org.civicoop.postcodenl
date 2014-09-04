@@ -33,8 +33,13 @@ function postcodenl_retrieve(blockId, housenumber, postcode, toevoeging) {
                 }).prop('selected', true);
 
             } else if (data.is_error == 0 && data.count == 0) {
-                cj('#address_' + blockId + '_street_address').val('');
-                cj('#address_' + blockId + '_street_name').val('');
+                console.log(cj('#address_' + blockId + '_street_name').val());
+                if (cj('#address_' + blockId + '_street_name').val().toLowerCase() != 'postbus') {
+                    cj('#address_' + blockId + '_street_address').val('');
+                    cj('#address_' + blockId + '_street_name').val('');
+                } else {
+                    cj('#address_' + blockId + '_street_address').val('Postbus '+housenumber+toevoeging);
+                }
                 cj('#address_' + blockId + '_city').val('');
                 cj('#address_' + blockId + '_street_number').val(housenumber);
                 cj('#address_' + blockId + '_street_unit').val(toevoeging);
