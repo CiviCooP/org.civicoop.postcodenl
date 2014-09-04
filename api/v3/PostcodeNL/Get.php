@@ -92,7 +92,7 @@ function civicrm_api3_postcode_n_l_get($params) {
       $values[$i] = array($even, 'Integer');
       $i++;
       
-      $where .= " AND %".$i." BETWEEN `huisnummer_van` AND `huisnummer_tot`";
+      $where .= " AND ((%".$i." BETWEEN `huisnummer_van` AND `huisnummer_tot`) XOR (`adres` = 'Postbus'))";
       $values[$i] = array($value, 'Integer');
       $i++;      
     } else {
