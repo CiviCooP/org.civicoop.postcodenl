@@ -114,10 +114,9 @@ function civicrm_api3_postcode_n_l_get($params) {
     }
     $returnValues[$dao->id] = $row;
   }
-  
-  $hooks = CRM_Utils_Hook::singleton();
-  $hooks->invoke(1,
-      $returnValues, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject,
+
+  CRM_Postcodenl_Utils_Hook::invoke(1,
+      $returnValues, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject,
       'civicrm_postcodenl_get'
       );
   
