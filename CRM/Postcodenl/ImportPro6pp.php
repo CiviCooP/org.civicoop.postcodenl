@@ -10,6 +10,8 @@ class CRM_Postcodenl_ImportPro6pp {
   private $key;
 
   private $downloadUrl = 'http://api.pro6pp.nl/v1/download';
+
+  private $metaUrl = 'https://api.pro6pp.nl/v1/download/metadata';
   
   public function __construct($authkey) {
     $this->key = $authkey;
@@ -181,7 +183,11 @@ class CRM_Postcodenl_ImportPro6pp {
   protected function getStreamToCSV($asset) {
     
     $temp_file = tempnam(sys_get_temp_dir(), 'pro6pp');
-    $zipfile = $this->downloadUrl .'?auth_key='.$this->key.'&asset='.$asset;
+
+    $json = file_get_contents($this->metaUrl .'?auth_key='.$this->key.'&asset='.$asset);
+    $meta_data = json_decode($json);
+    $downloadUrl = $meta_data['results']['download_link'];
+    $zipfile = $downloadUrl .'?auth_key='.$this->key.'&asset='.$asset;
     if (!copy($zipfile, $temp_file)) {
       throw new CRM_Core_Exception("Unable to download zipfile: " . $zipfile);
     }
