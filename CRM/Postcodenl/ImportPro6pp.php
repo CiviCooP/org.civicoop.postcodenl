@@ -186,8 +186,7 @@ class CRM_Postcodenl_ImportPro6pp {
 
     $json = file_get_contents($this->metaUrl .'?auth_key='.$this->key.'&asset='.$asset);
     $meta_data = json_decode($json);
-    $downloadUrl = $meta_data['results']['download_link'];
-    $zipfile = $downloadUrl .'?auth_key='.$this->key.'&asset='.$asset;
+    $zipfile = $meta_data->results->download_link;
     if (!copy($zipfile, $temp_file)) {
       throw new CRM_Core_Exception("Unable to download zipfile: " . $zipfile);
     }
