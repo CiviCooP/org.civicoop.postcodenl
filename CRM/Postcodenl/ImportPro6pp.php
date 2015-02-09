@@ -105,7 +105,7 @@ class CRM_Postcodenl_ImportPro6pp {
   }
   
   public function importCBSBuurten() {
-    $fp = $this->getStreamToCSV('download_nl_sixpp_cbs_buurt.zip');
+    $fp = $this->getStreamToCSV('download_nl_sixpp_cbs_buurt.zip', false);
     $headers = array();
 
     $lineNr = 0;
@@ -180,16 +180,22 @@ class CRM_Postcodenl_ImportPro6pp {
    * @return filepointer
    * @throws CRM_Core_Exception
    */
-  protected function getStreamToCSV($asset) {
+  protected function getStreamToCSV($asset, $useMeta=true) {
     
     $temp_file = tempnam(sys_get_temp_dir(), 'pro6pp');
 
-    $json = file_get_contents($this->metaUrl .'?auth_key='.$this->key.'&asset='.$asset);
-    $meta_data = json_decode($json);
-    $zipfile = $meta_data->results->download_link;
-    if (!copy($zipfile, $temp_file)) {
-      throw new CRM_Core_Exception("Unable to download zipfile: " . $zipfile);
+    if ($useMeta) {
+      $json = file_get_contents($this->metaUrl . '?auth_key=' . $this->key . '&asset=' . $asset);
+      $meta_data = json_decode($json);
+      $zipfile = $meta_data->results->download_link;
+    } else {
+      $zipfile = $this->downloadUrl . '?auth_key=' . $this->key . '&asset=' . $asset;
     }
+
+    if (!copy($zipfile, $temp_file)) {
+      throw new CRM_Core_Exception("Unable to download zipfile for " . $asset . ": " . $zipfile);
+    }
+
     $zip = new ZipArchive();
     if (!$zip->open($temp_file)) {
       throw new CRM_Core_Exception("Unable to open zipfile: " . $zipfile);
@@ -198,7 +204,6 @@ class CRM_Postcodenl_ImportPro6pp {
     $name = $zip->getNameIndex(0);
     $fp = $zip->getStream($name);
     if (!$fp) {
-      echo $zipfile;
       throw new CRM_Core_Exception("Unable to retrieve CSV from zipfile: " . $zipfile);
     }
     
