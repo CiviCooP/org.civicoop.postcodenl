@@ -200,7 +200,7 @@ function postcodenl_civicrm_alterContent(  &$content, $context, $tplName, &$obje
     $template = CRM_Core_Smarty::singleton();
     $content .= $template->fetch('CRM/Contact/Form/Edit/postcodenl_contact_js.tpl');
   }
-  if ($object instanceof CRM_Event_Form_ManageEvent_Location) {
+  if ($object instanceof CRM_Event_Form_ManageEvent_Location || $object instanceof CRM_Event_Form_ManageEvent_EventInfo) {
     $template = CRM_Core_Smarty::singleton();
     $content .= $template->fetch('CRM/Event/Form/ManageEvent/Location_js.tpl');
   }
@@ -208,13 +208,40 @@ function postcodenl_civicrm_alterContent(  &$content, $context, $tplName, &$obje
 }
 
 function postcodenl_civicrm_buildForm( $formName, &$form ) {
-    if ($formName == 'CRM_Contact_Form_Contact' || $formName == 'CRM_Event_Form_ManageEvent_Location') {
-      CRM_Core_Resources::singleton()->addScriptFile('org.civicoop.postcodenl', 'postcodenl.js');
+  if ($formName == 'CRM_Event_Form_ManageEvent_Location') {
+    //make sure the right action and parse street address are set
+    //action = 2 will show the street_number, street_name and street_unit fields
+    //in event location parse street address is not set for template.
+    // If this is zero no street_number, street_name or street_unit fields
+    // are available and we need those for the postcode database
+    $form->assign('action', 2);
+    $form->assign('parseStreetAddress', 1);
+
+    //also assign allAddressFieldValues for location block.
+    //This will make sure that edit individual fields is available
+    $defaultValues = $form->getVar('_defaultValues');
+    if ($defaultValues['location_option'] == 2) {
+      $loc_id = $form->getVar('_oldLocBlockId');
+      $address_id = civicrm_api3('LocBlock', 'getvalue', array('return' => 'address_id', 'id' => $loc_id));
+      $address = civicrm_api3('Address', 'getsingle', array('id' => $address_id));
+      $allAddressFieldValues = array();
+      foreach ($address as $key => $val) {
+        $allAddressFieldValues[$key . '_1'] = $val;
+      }
+      $form->assign('allAddressFieldValues', json_encode($allAddressFieldValues));
     }
+  }
+  if ($formName == 'CRM_Contact_Form_Contact' || $formName == 'CRM_Event_Form_ManageEvent_Location' || $formName == 'CRM_Event_Form_ManageEvent_EventInfo') {
+    CRM_Core_Resources::singleton()->addScriptFile('org.civicoop.postcodenl', 'postcodenl.js');
+  }
 }
 
 function postcodenl_civicrm_pageRun( &$page ) {
   if ($page instanceof CRM_Contact_Page_View_Summary) {
     CRM_Core_Resources::singleton()->addScriptFile('org.civicoop.postcodenl', 'postcodenl.js');
   }
+}
+
+function postcodenl_civicrm_alterTemplateFile($formName, &$form, $context, &$tplName) {
+
 }
