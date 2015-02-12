@@ -3,7 +3,7 @@
 require_once 'postcodenl.civix.php';
 
 function postcodenl_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions) {
-  if (strtolower($entity) == strtolower('PostcodeNL') && $action == 'get') {
+  if ((strtolower($entity) == strtolower('postcode_n_L') || strtolower($entity) == strtolower('PostcodeNL')) && $action == 'get') {
     $params['check_permissions'] = false; //allow everyone to use the postcode api
   }
 }
