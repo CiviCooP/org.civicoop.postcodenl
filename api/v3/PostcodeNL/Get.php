@@ -88,7 +88,7 @@ function civicrm_api3_postcode_n_l_get($params) {
       //huisnummer needs an between huisnummer_van and huisnummer_tot
       //also there needs to be a check on even or odd
       $even = ($value % 2 == 0 ? 1 : 0);
-      $where .= " AND `even` = %".$i;
+      $where .= " AND (`even` = %".$i." XOR `adres` = 'Postbus')";
       $values[$i] = array($even, 'Integer');
       $i++;
       

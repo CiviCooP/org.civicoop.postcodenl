@@ -27,10 +27,13 @@ function civicrm_api3_postcode_n_l_updateaddresses($inputParams) {
   //get custom group and fields for cbs data
 
   set_time_limit(-1); //make sure this job gets enough time to run
-  
+
+  $id = false;
   $limit = 1000;
   if (isset($inputParams['limit'])) {
     $limit = (int) $inputParams['limit'];
+  } elseif (isset($inputParams['id'])) {
+    $id = $inputParams['id'];
   }
   
   $check_street = false;
@@ -40,14 +43,19 @@ function civicrm_api3_postcode_n_l_updateaddresses($inputParams) {
 
   $count = 0;
   $processed = 0;
-  $offset = CRM_Core_BAO_Setting::getItem('org.civicoop.postcodenl', 'job.updateaddresses.offset', NULL, 0);
-  $dao = CRM_Core_DAO::executeQuery("SELECT * FROM `civicrm_address` ORDER BY `id` LIMIT ".$offset.", ".$limit, array(), true, 'CRM_Core_DAO_Address');
-  while($dao->fetch()) {
+  $offset = 0;
+  if ($id) {
+    $dao = CRM_Core_DAO::executeQuery("SELECT * FROM `civicrm_address` WHERE `id` = %1 ORDER BY `id` LIMIT 1", array(1 => array($id, 'Integer')), true, 'CRM_Core_DAO_Address');
+  } else {
+    $offset = CRM_Core_BAO_Setting::getItem('org.civicoop.postcodenl', 'job.updateaddresses.offset', NULL, 0);
+    $dao = CRM_Core_DAO::executeQuery("SELECT * FROM `civicrm_address` ORDER BY `id` LIMIT " . $offset . ", " . $limit, array(), true, 'CRM_Core_DAO_Address');
+  }
+  while ($dao->fetch()) {
     $params = array();
     CRM_Core_DAO::storeValues($dao, $params);
     if (CRM_Postcodenl_Updater::checkAddress($dao->id, $params, $check_street)) {
-      $count ++;
-    }       
+      $count++;
+    }
     $processed++;
   }
   if ($processed === 0) {
@@ -55,8 +63,10 @@ function civicrm_api3_postcode_n_l_updateaddresses($inputParams) {
   } else {
     $offset = $offset + $processed;
   }
-  
-  CRM_Core_BAO_Setting::setItem($offset, 'org.civicoop.postcodenl', 'job.updateaddresses.offset');
+
+  if (!$id) {
+    CRM_Core_BAO_Setting::setItem($offset, 'org.civicoop.postcodenl', 'job.updateaddresses.offset');
+  }
   
   return civicrm_api3_create_success(array('message' => 'Updated '.$count.' addresses'));
 }
