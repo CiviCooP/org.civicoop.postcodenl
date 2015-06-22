@@ -296,25 +296,31 @@ class CRM_Postcodenl_Updater {
   protected function updateCustomValues($address_id, $params) {
     $custom_values = CRM_Core_BAO_CustomValueTable::getEntityValues($address_id, 'Address');
 
+    $update_params = array();
+    $this->checkCustomValue($this->gemeente_field, '', $custom_values, $update_params);
+    $this->checkCustomValue($this->buurt_field, '', $custom_values, $update_params);
+    $this->checkCustomValue($this->buurtcode_field, '', $custom_values, $update_params);
+    $this->checkCustomValue($this->wijkcode_field, '', $custom_values, $update_params);
+
     try {
       if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['postal_code']) && isset($params['street_number'])) {
         $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $params['postal_code'], 'huisnummer' => $params['street_number']));
         if (isset($info['values']) && is_array($info['values'])) {
           $values = reset($info['values']);
 
-          $update_params = array();
           $this->checkCustomValue($this->gemeente_field, $values['gemeente'], $custom_values, $update_params);
           $this->checkCustomValue($this->buurt_field, $values['cbs_buurtnaam'], $custom_values, $update_params);
           $this->checkCustomValue($this->buurtcode_field, $values['cbs_buurtcode'], $custom_values, $update_params);
           $this->checkCustomValue($this->wijkcode_field, $values['cbs_wijkcode'], $custom_values, $update_params);
-
-          if (count($update_params) > 0) {
-            $update_params['entityID'] = $address_id;
-            CRM_Core_BAO_CustomValueTable::setValues($update_params);
-            return true;
-          }
         }
       }
+
+      if (count($update_params) > 0) {
+        $update_params['entityID'] = $address_id;
+        CRM_Core_BAO_CustomValueTable::setValues($update_params);
+        return true;
+      }
+
     } catch (Exception $e) {
       //do nothing on exception, possibly the postcode doesn't exist
     }
