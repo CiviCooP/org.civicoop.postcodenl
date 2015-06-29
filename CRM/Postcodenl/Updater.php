@@ -331,8 +331,7 @@ class CRM_Postcodenl_Updater {
   protected function checkCustomValue($custom_field, $checkValue, $custom_values, &$update_params) {
     if (empty($custom_values[$custom_field['id']])) {
       $update_params['custom_' . $custom_field['id']] = $checkValue;
-    }
-    if (!empty($custom_values[$custom_field['id']]) && strtolower($checkValue) != strtolower($custom_values[$custom_field['id']])) {
+    } elseif (!empty($custom_values[$custom_field['id']]) && strtolower($checkValue) != strtolower($custom_values[$custom_field['id']])) {
       $update_params['custom_' . $custom_field['id']] = $checkValue;
     } elseif (isset($update_params['custom_'.$custom_field['id']])) {
       unset($update_params['custom_'.$custom_field['id']]);
