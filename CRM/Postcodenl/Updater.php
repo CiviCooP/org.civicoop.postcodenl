@@ -334,6 +334,8 @@ class CRM_Postcodenl_Updater {
     }
     if (!empty($custom_values[$custom_field['id']]) && strtolower($checkValue) != strtolower($custom_values[$custom_field['id']])) {
       $update_params['custom_' . $custom_field['id']] = $checkValue;
+    } elseif (isset($update_params['custom_'.$custom_field['id']])) {
+      unset($update_params['custom_'.$custom_field['id']]);
     }
   }
 
