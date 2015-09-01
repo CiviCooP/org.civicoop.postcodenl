@@ -22,6 +22,11 @@ class CRM_Postcodenl_Upgrader extends CRM_Postcodenl_Upgrader_Base {
     return TRUE;
   }
 
+  public function upgrade_1002() {
+    $this->executeCustomDataFile('xml/auto_install.xml');
+    return true;
+  }
+
   /**
    * Example: Run an external SQL script when the module is uninstalled
    */

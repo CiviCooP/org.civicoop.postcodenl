@@ -12,6 +12,7 @@ class CRM_Postcodenl_Updater {
   protected $buurt_field;
   protected $buurtcode_field;
   protected $wijkcode_field;
+  protected $manual_processing;
 
   protected function __construct() {
     $this->custom_group = civicrm_api3('CustomGroup', 'getsingle', array('name' => 'Adresgegevens'));
@@ -19,6 +20,7 @@ class CRM_Postcodenl_Updater {
     $this->buurt_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Buurt', 'custom_group_id' => $this->custom_group['id']));
     $this->buurtcode_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Buurtcode', 'custom_group_id' => $this->custom_group['id']));
     $this->wijkcode_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Wijkcode', 'custom_group_id' => $this->custom_group['id']));
+    $this->manual_processing = civicrm_api3('CustomField', 'getsingle', array('name' => 'cbs_manual_entry', 'custom_group_id' => $this->custom_group['id']));
   }
 
   public static function singleton() {
@@ -89,6 +91,12 @@ class CRM_Postcodenl_Updater {
    */
   protected function updateAddressFields($id, &$params, $check_street) {
     $update_params = array();
+
+    $manualProcessing = false;
+    if (!empty($params['custom_'.$this->manual_processing['id']])) {
+      return;
+    }
+
     try {
       if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['street_number']) && isset($params['postal_code'])) {
         $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $params['postal_code'], 'huisnummer' => $params['street_number']));
@@ -302,10 +310,15 @@ class CRM_Postcodenl_Updater {
     $this->checkCustomValue($this->buurtcode_field, '', $custom_values, $update_params);
     $this->checkCustomValue($this->wijkcode_field, '', $custom_values, $update_params);
 
+    $manualProcessing = false;
+    if (!empty($custom_values[$this->manual_processing['id']])) {
+      $manualProcessing = true;
+    }
+
     try {
       if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['postal_code']) && isset($params['street_number'])) {
         $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $params['postal_code'], 'huisnummer' => $params['street_number']));
-        if (isset($info['values']) && is_array($info['values'])) {
+        if (isset($info['values']) && is_array($info['values']) && !$manualProcessing) {
           $values = reset($info['values']);
 
           $this->checkCustomValue($this->gemeente_field, $values['gemeente'], $custom_values, $update_params);

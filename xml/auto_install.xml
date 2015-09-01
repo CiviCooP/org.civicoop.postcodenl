@@ -21,6 +21,24 @@
   </CustomGroups>
   <CustomFields>
     <CustomField>
+      <name>cbs_manual_entry</name>
+      <label>Handmatige invoer</label>
+      <data_type>Boolean</data_type>
+      <html_type>Radio</html_type>
+      <default_value>0</default_value>
+      <is_required>0</is_required>
+      <is_searchable>1</is_searchable>
+      <is_search_range>0</is_search_range>
+      <weight>1</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>255</text_length>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <column_name>manual_entry</column_name>
+      <custom_group_name>Adresgegevens</custom_group_name>
+    </CustomField>
+    <CustomField>
       <name>Gemeente</name>
       <label>Gemeente</label>
       <data_type>String</data_type>
