@@ -112,9 +112,13 @@ function postcodenl_init_addressBlock(blockId, address_table_id) {
             if (postcodenl_is_manual_processing(blockId)) {
                 housenumber_field.parent().hide();
                 housenumber_toev_field.parent().hide();
+                street_number_td.show();
+                street_unit_td.show();
             } else {
                 housenumber_field.parent().show();
                 housenumber_toev_field.parent().show();
+                street_number_td.hide();
+                street_unit_td.hide();
             }
 
         } else {
