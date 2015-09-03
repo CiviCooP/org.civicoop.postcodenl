@@ -9,14 +9,7 @@ function postcodenl_retrieve(blockId, housenumber, postcode, toevoeging) {
     }
 
     //only when no manual processing is checked
-    var manual_processing = false;
-    if (cj('div.crm-address-custom-set-block-'+blockId+' input[data-crm-custom="Adresgegevens:cbs_manual_entry"]:checked')) {
-        if (cj('div.crm-address-custom-set-block-'+blockId+' input[data-crm-custom="Adresgegevens:cbs_manual_entry"]:checked').val() == 1) {
-            manual_processing = true;
-        }
-    }
-
-    if (manual_processing) {
+    if (postcodenl_is_manual_processing(blockId)) {
         return;
     }
 
@@ -115,15 +108,40 @@ function postcodenl_init_addressBlock(blockId, address_table_id) {
             postcode_field.val(cj('#address_' + blockId + '_postal_code').val());
             housenumber_field.val(cj('#address_' + blockId + '_street_number').val());
             housenumber_toev_field.val(cj('#address_'+blockId+'_street_unit').val());
+
+            if (postcodenl_is_manual_processing(blockId)) {
+                housenumber_field.parent().hide();
+                housenumber_toev_field.parent().hide();
+            } else {
+                housenumber_field.parent().show();
+                housenumber_toev_field.parent().show();
+            }
+
         } else {
             cj('#postcodenl_row_' + blockId).hide();
             street_number_td.show();
             street_unit_td.show();
             postalcode_td.show();
         }
+
+
     });
+
+    cj('div.crm-address-custom-set-block-'+blockId+' input[data-crm-custom="Adresgegevens:cbs_manual_entry"]').change(function (e) {
+        cj('#address_' + blockId + '_country_id').trigger('change');
+    })
     
     cj('#address_' + blockId + '_country_id').trigger('change');
+}
+
+function postcodenl_is_manual_processing(blockId) {
+    var manual_processing = false;
+    if (cj('div.crm-address-custom-set-block-'+blockId+' input[data-crm-custom="Adresgegevens:cbs_manual_entry"]:checked')) {
+        if (cj('div.crm-address-custom-set-block-'+blockId+' input[data-crm-custom="Adresgegevens:cbs_manual_entry"]:checked').val() == 1) {
+            manual_processing = true;
+        }
+    }
+    return manual_processing;
 }
 
 /**
