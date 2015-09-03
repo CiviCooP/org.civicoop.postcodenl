@@ -92,7 +92,17 @@ class CRM_Postcodenl_Updater {
   protected function updateAddressFields($id, &$params, $check_street) {
     $update_params = array();
 
-    $manualProcessing = false;
+    if ($id) {
+      $custom_id = CRM_Core_DAO::singleValueQuery("SELECT id from `{$this->custom_group['table_name']}` WHERE entity_id = %1", array(
+        1 => array(
+          $id,
+          'Integer'
+        )
+      ));
+      if ($custom_id && !empty($params['custom_'.$this->manual_processing['id'].'_'.$custom_id])) {
+        return;
+      }
+    }
     if (!empty($params['custom_'.$this->manual_processing['id']])) {
       return;
     }
