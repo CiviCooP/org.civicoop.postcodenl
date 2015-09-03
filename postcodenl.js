@@ -8,6 +8,18 @@ function postcodenl_retrieve(blockId, housenumber, postcode, toevoeging) {
         return;
     }
 
+    //only when no manual processing is checked
+    var manual_processing = false;
+    if (cj('div.crm-address-custom-set-block-'+blockId+' input[data-crm-custom="Adresgegevens:cbs_manual_entry"]:checked')) {
+        if (cj('div.crm-address-custom-set-block-'+blockId+' input[data-crm-custom="Adresgegevens:cbs_manual_entry"]:checked').val() == 1) {
+            manual_processing = true;
+        }
+    }
+
+    if (manual_processing) {
+        return;
+    }
+
     //run only when a postcode is present
     if (postcode.length == 0) {
         return;

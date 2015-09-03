@@ -1,6 +1,5 @@
 {literal}
 <script type="text/javascript">
-
 function init_postcodenl_contact_form() {
     var addressBlocks = cj('.crm-edit-address-block');
     addressBlocks.each(function(index, item) {
