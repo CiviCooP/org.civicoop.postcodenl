@@ -105,7 +105,7 @@ class CRM_Postcodenl_ImportPro6pp {
   }
   
   public function importCBSBuurten() {
-    $fp = $this->getStreamToCSV('download_nl_sixpp_cbs_buurt.zip', false);
+    $fp = $this->getStreamToCSV('download_nl_sixpp_cbs_buurt_utf8.zip', false);
     $headers = array();
 
     $lineNr = 0;
