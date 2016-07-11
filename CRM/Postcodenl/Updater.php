@@ -108,7 +108,7 @@ class CRM_Postcodenl_Updater {
     }
 
     try {
-      if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['street_number']) && isset($params['postal_code'])) {
+      if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['street_number']) && isset($params['postal_code']) && !empty($params['street_number']) && !empty($params['postal_code'])) {
         $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $params['postal_code'], 'huisnummer' => $params['street_number']));
         if (isset($info['values']) && is_array($info['values'])) {
           $values = reset($info['values']);
@@ -143,6 +143,37 @@ class CRM_Postcodenl_Updater {
               $params['state_province_id'] = $state_province->id;
               $update_params['state_province_id'] = $state_province->id;
             }
+          }
+        }
+      } elseif (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['city']) && !empty($params['city']) && empty($params['state_province_id'])) {
+        $dao = CRM_Core_DAO::executeQuery("SELECT provincie FROM civicrm_postcodenl WHERE woonplaats = %1 GROUP BY provincie", array(
+          1 => array(
+            $params['city'],
+            'String'
+          )
+        ));
+        if ($dao->N === 1 && $dao->fetch()) {
+          $state_province = new CRM_Core_DAO_StateProvince();
+          $state_province->name = $dao->provincie;
+          $state_province->country_id = $params['country_id'];
+          if ($state_province->find(TRUE)) {
+            $params['state_province_id'] = $state_province->id;
+            $update_params['state_province_id'] = $state_province->id;
+          }
+        }
+      } elseif (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['postal_code']) && !empty($params['postal_code']) && empty($params['city'])) {
+        $postcode = str_replace(" ", "", $params['postal_code']);
+        $dao = CRM_Core_DAO::executeQuery("SELECT provincie, woonplaats from civicrm_postcodenl where postcode_nr = '".substr($postcode, 0, 4)."' and postcode_letter = '".substr($postcode, 4, 2)."' GROUP BY woonplaats, provincie");
+        if ($dao->fetch() && $dao->N == 1) {
+          $params['city'] = $dao->woonplaats;
+          $update_params['city'] = $dao->woonplaats;
+
+          $state_province = new CRM_Core_DAO_StateProvince();
+          $state_province->name = $dao->provincie;
+          $state_province->country_id = $params['country_id'];
+          if ($state_province->find(true) && empty($params['state_province_id'])) {
+            $params['state_province_id'] = $state_province->id;
+            $update_params['state_province_id'] = $state_province->id;
           }
         }
       }
@@ -326,24 +357,42 @@ class CRM_Postcodenl_Updater {
     }
 
     try {
-      if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['postal_code']) && isset($params['street_number'])) {
-        $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $params['postal_code'], 'huisnummer' => $params['street_number']));
+      $postcodeParams = array();
+      $updateBuurtEnWijk = true;
+      if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['postal_code']) && isset($params['street_number']) && !empty($params['postal_code']) && !empty($params['street_number'])) {
+        $postcodeParams['postcode'] = $params['postal_code'];
+        $postcodeParams['huisnummer'] = $params['street_number'];
+      } elseif (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['city']) && !empty($params['city'])) {
+        $updateBuurtEnWijk = false;
+        $postcodeParams['woonplaats'] = $params['city'];
+        if (isset($params['state_province_id']) && !empty($params['state_province_id'])) {
+          $provincie = new CRM_Core_DAO_StateProvince();
+          $provincie->id = $params['state_province_id'];
+          if ($provincie->find(true)) {
+            $postcodeParams['provincie'] = $provincie->name;
+          }
+        }
+      }
+
+      if (count($postcodeParams)) {
+        $info = civicrm_api3('PostcodeNL', 'get', $postcodeParams);
         if (isset($info['values']) && is_array($info['values']) && !$manualProcessing) {
           $values = reset($info['values']);
 
           $this->checkCustomValue($this->gemeente_field, $values['gemeente'], $custom_values, $update_params);
-          $this->checkCustomValue($this->buurt_field, $values['cbs_buurtnaam'], $custom_values, $update_params);
-          $this->checkCustomValue($this->buurtcode_field, $values['cbs_buurtcode'], $custom_values, $update_params);
-          $this->checkCustomValue($this->wijkcode_field, $values['cbs_wijkcode'], $custom_values, $update_params);
+          if ($updateBuurtEnWijk) {
+            $this->checkCustomValue($this->buurt_field, $values['cbs_buurtnaam'], $custom_values, $update_params);
+            $this->checkCustomValue($this->buurtcode_field, $values['cbs_buurtcode'], $custom_values, $update_params);
+            $this->checkCustomValue($this->wijkcode_field, $values['cbs_wijkcode'], $custom_values, $update_params);
+          }
         }
       }
 
       if (count($update_params) > 0) {
         $update_params['entityID'] = $address_id;
         CRM_Core_BAO_CustomValueTable::setValues($update_params);
-        return true;
+        return TRUE;
       }
-
     } catch (Exception $e) {
       //do nothing on exception, possibly the postcode doesn't exist
     }
