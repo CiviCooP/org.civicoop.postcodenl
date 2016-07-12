@@ -108,7 +108,43 @@ class CRM_Postcodenl_Updater {
     }
 
     try {
-      if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['street_number']) && isset($params['postal_code']) && !empty($params['street_number']) && !empty($params['postal_code'])) {
+      if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['street_number']) && isset($params['street_name']) && isset($params['city']) && !empty($params['street_number']) && !empty($params['street_name']) && !empty($params['city']) && (!isset($params['postal_code']) || empty($params['postal_code']))) {
+        $info = civicrm_api3('PostcodeNL', 'get', array('adres' => $params['street_name'], 'huisnummer' => $params['street_number'], 'woonplaats' => $params['city']));
+        if (isset($info['values']) && is_array($info['values'])) {
+          $values = reset($info['values']);
+          if (!isset($params['postal_code']) || empty($params['postal_code'])) {
+            $params['postal_code'] = $values['postcode_nr']." ".$values['postcode_letter'];
+            $update_params['postal_code'] = $values['postcode_nr']." ".$values['postcode_letter'];
+          }
+          if (!isset($params['city']) || strtolower($values['woonplaats']) != strtolower($params['city'])) {
+            $params['city'] = $values['woonplaats'];
+            $update_params['city'] = $values['woonplaats'];
+          }
+          if (!isset($params['geo_code_1']) || ($params['geo_code_1'] != $values['latitude'])) {
+            $params['geo_code_1'] = $values['latitude'];
+            $update_params['geo_code_1'] = $values['latitude'];
+            $params['geo_code_2'] = $values['longitude'];
+            $update_params['geo_code_2'] = $values['longitude'];
+            $params['manual_geo_code'] = true;
+          } elseif (!isset($params['geo_code_2']) || ($params['geo_code_2'] != $values['longitude'])) {
+            $params['geo_code_1'] = $values['latitude'];
+            $update_params['geo_code_1'] = $values['latitude'];
+            $params['geo_code_2'] = $values['longitude'];
+            $update_params['geo_code_2'] = $values['longitude'];
+            $params['manual_geo_code'] = true;
+          }
+
+          $state_province = new CRM_Core_DAO_StateProvince();
+          $state_province->name = $values['provincie'];
+          $state_province->country_id = $params['country_id'];
+          if ($state_province->find(TRUE)) {
+            if (!isset($params['state_province_id']) || $params['state_province_id'] != $state_province->id) {
+              $params['state_province_id'] = $state_province->id;
+              $update_params['state_province_id'] = $state_province->id;
+            }
+          }
+        }
+      } elseif (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['street_number']) && isset($params['postal_code']) && !empty($params['street_number']) && !empty($params['postal_code'])) {
         $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $params['postal_code'], 'huisnummer' => $params['street_number']));
         if (isset($info['values']) && is_array($info['values'])) {
           $values = reset($info['values']);
@@ -152,7 +188,7 @@ class CRM_Postcodenl_Updater {
             'String'
           )
         ));
-        if ($dao->N === 1 && $dao->fetch()) {
+        if ($dao->fetch() && $dao->N == 1) {
           $state_province = new CRM_Core_DAO_StateProvince();
           $state_province->name = $dao->provincie;
           $state_province->country_id = $params['country_id'];
@@ -362,7 +398,7 @@ class CRM_Postcodenl_Updater {
       if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['postal_code']) && isset($params['street_number']) && !empty($params['postal_code']) && !empty($params['street_number'])) {
         $postcodeParams['postcode'] = $params['postal_code'];
         $postcodeParams['huisnummer'] = $params['street_number'];
-      } elseif (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['city']) && !empty($params['city'])) {
+      } elseif (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['city']) && !empty($params['city']) && isset($params['state_province_id']) && !empty($params['state_province_id'])) {
         $updateBuurtEnWijk = false;
         $postcodeParams['woonplaats'] = $params['city'];
         if (isset($params['state_province_id']) && !empty($params['state_province_id'])) {

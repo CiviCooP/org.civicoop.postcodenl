@@ -70,18 +70,22 @@ function postcodenl_init_addressBlock(blockId, address_table_id) {
     var postalcode_td = cj('#address_'+blockId+'_postal_code').parent();
 
     postcode_field.change(function(e) {
+        cj('#address_' + blockId + '_postal_code').val(postcode_field.val());
         postcodenl_retrieve(blockId, housenumber_field.val(), postcode_field.val(), housenumber_toev_field.val());
     });
     
     postcode_field.keyup(function(e) {
+        cj('#address_' + blockId + '_postal_code').val(postcode_field.val());
         postcodenl_retrieve(blockId, housenumber_field.val(), postcode_field.val(), housenumber_toev_field.val());
     });
 
     housenumber_field.change(function(e) {
+        cj('#address_' + blockId + '_street_number').val(housenumber_field.val());
         postcodenl_retrieve(blockId, housenumber_field.val(), postcode_field.val(), housenumber_toev_field.val());
     });
     
     housenumber_field.keyup(function(e) {
+        cj('#address_' + blockId + '_street_number').val(housenumber_field.val());
         postcodenl_retrieve(blockId, housenumber_field.val(), postcode_field.val(), housenumber_toev_field.val());
     });
     
