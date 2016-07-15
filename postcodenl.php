@@ -135,6 +135,20 @@ function postcodenl_civicrm_navigationMenu( &$params ) {
     ),
     'child' => array(),
   );
+
+  $contactParent =_postcodenl_get_parent_id_navigation_menu($params, 'Contacts');
+  $contactParent['child'][$maxKey+2] = array (
+    'attributes' => array (
+      "label"=> ts('Update addresses'),
+      "name"=> ts('Update addresses'),
+      "url"=> "civicrm/contact/updateaddresses",
+      "permission" => "administer CiviCRM",
+      "parentID" => $contactParent['attributes']['navID'],
+      "active" => 1,
+      //"navID" => $maxKey + 1,
+    ),
+    'child' => array(),
+  );
 }
 
 function _postcodenl_get_parent_id_navigation_menu(&$menu, $path, &$parent = NULL) {
