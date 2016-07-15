@@ -19,11 +19,10 @@ class CRM_Postcodenl_ImportPro6pp {
 
   /**
    * Imports the postcode data
-   * 
-   * @param String $zipfile filename for the zip file
+   *
+   * @return int
    */
   public function importPro6pp() {
-
     $fp = $this->getStreamToCSV('download_nl_sixpp.zip');
     $headers = array();
 
@@ -40,7 +39,6 @@ class CRM_Postcodenl_ImportPro6pp {
     while (($data = fgetcsv($fp, 0, ',')) !== false) {
       $lineNr++;
       if ($lineNr == 1) {
-        //firstline is heading
         $headers = array_flip($data);
         continue;
       }
@@ -50,15 +48,15 @@ class CRM_Postcodenl_ImportPro6pp {
         $data[$n] = CRM_Core_DAO::escapeString($val);
       }
       
-      $postcode_letter = substr($data[$headers['nl_sixpp']], 4, 2);
-      $postcode_cijfer = substr($data[$headers['nl_sixpp']], 0, 4);
-      $adres = $data[$headers['street']];
-      $provincie = $data[$headers['province']];
-      $gemeente = $data[$headers['municipality']];
-      $woonplaats = $data[$headers['city']];
-      $lat = $data[$headers['lat']];
-      $lng = $data[$headers['lng']];
-      $huisnummers = explode(";", $data[$headers['streetnumbers']]);
+      $postcode_letter = substr($data[$headers[utf8_encode('nl_sixpp')]], 4, 2);
+      $postcode_cijfer = substr($data[$headers[utf8_encode('nl_sixpp')]], 0, 4);
+      $adres = $data[$headers[utf8_encode('street')]];
+      $provincie = $data[$headers[utf8_encode('province')]];
+      $gemeente = $data[$headers[utf8_encode('municipality')]];
+      $woonplaats = $data[$headers[utf8_encode('city')]];
+      $lat = $data[$headers[utf8_encode('lat')]];
+      $lng = $data[$headers[utf8_encode('lng')]];
+      $huisnummers = explode(";", $data[$headers[utf8_encode('streetnumbers')]]);
       //one records could contain multiple sets of housenummbers, seperated by 1-10;40-50;
       foreach ($huisnummers as $huisnr) {
         $nrs = explode("-", $huisnr);
@@ -97,15 +95,68 @@ class CRM_Postcodenl_ImportPro6pp {
       usleep(100); //wait for the database, so the query below is executed faster
     }
     
-    //CRM_Core_Transaction::willCommit();
-    
     $this->closeFP($fp);
 
     return $lineNr;
   }
+
+  public function importCities() {
+    $fp = $this->getStreamToCSV('download_nl_city.zip', false);
+    $headers = array();
+
+    $lineNr = 0;
+    $i = 0;
+
+    CRM_Core_DAO::executeQuery("TRUNCATE `civicrm_postcodenl_alt_city`;");
+
+    //read csv file line for line
+    $sql = "INSERT INTO `civicrm_postcodenl_alt_city` "
+      . " (`provincie`, `city`, `alt_city`)"
+      . " VALUES ";
+    $values = "";
+    //read csv file line for line
+    while (($data = fgetcsv($fp, 0, ',')) !== false) {
+      $lineNr++;
+      if ($lineNr == 1) {
+        //firstline is heading
+        $headers = array_flip($data);
+        continue;
+      }
+
+      //escape data for database
+      foreach($data as $n => $val) {
+        $data[$n] = CRM_Core_DAO::escapeString($val);
+      }
+      
+      $provincie = $data[$headers['province']];
+      $city = $data[$headers['city']];
+      $alt_city = $data[$headers['city_alt']];
+
+      if (!empty($alt_city)) {
+        if (strlen($values)) {
+          $values .= ",";
+        }
+        $values .= " ('".$provincie."', '".$city."', '".$alt_city."')";
+        $i++;
+
+        if (strlen($values) && ($i % 1000 == 0)) {
+          CRM_Core_DAO::executeQuery($sql . $values . ";");
+          $values = "";
+          usleep(50); //wait for the database, so the query below is executed faster
+        }
+      }
+    }
+
+    if (strlen($values)) {
+      CRM_Core_DAO::executeQuery($sql . $values . ";");
+      usleep(50); //wait for the database, so the query below is executed faster
+    }
+
+    return $i;
+  }
   
   public function importCBSBuurten() {
-    $fp = $this->getStreamToCSV('download_nl_sixpp_cbs_buurt_utf8.zip', false);
+    $fp = $this->getStreamToCSV('download_nl_sixpp_cbs_buurt_utf8.zip', false, false);
     $headers = array();
 
     $lineNr = 0;
@@ -153,8 +204,6 @@ class CRM_Postcodenl_ImportPro6pp {
       usleep(50); //wait for the database, so the query below is executed faster
     }
     
-    //CRM_Core_Transaction::willCommit();
-    
     $this->closeFP($fp);
     
     sleep(5); //wait for the database, so the query below is executed faster
@@ -162,8 +211,6 @@ class CRM_Postcodenl_ImportPro6pp {
     CRM_Core_DAO::executeQuery("UPDATE `civicrm_pro6pp_import` `i` "
         . "INNER JOIN `civicrm_pro6pp_import_cbsbuurt` `cbs` ON `i`.`postcode_letter` = `cbs`.`postcode_letter` AND `i`.`postcode_nr` = `cbs`.`postcode_nr`"
         . "SET `i`.`cbs_buurtcode` = `cbs`.`cbs_buurtcode`, `i`.`cbs_buurtnaam` = `cbs`.`cbs_buurtnaam`, `i`.`cbs_wijkcode` = `cbs`.`cbs_wijkcode`;");
-    
-    //CRM_Core_Transaction::willCommit();
     
     return $lineNr;
   }
@@ -180,7 +227,7 @@ class CRM_Postcodenl_ImportPro6pp {
    * @return filepointer
    * @throws CRM_Core_Exception
    */
-  protected function getStreamToCSV($asset, $useMeta=true) {
+  protected function getStreamToCSV($asset, $useMeta=true, $convertToUtf8=true) {
     
     $temp_file = tempnam(sys_get_temp_dir(), 'pro6pp');
 
@@ -206,8 +253,10 @@ class CRM_Postcodenl_ImportPro6pp {
     if (!$fp) {
       throw new CRM_Core_Exception("Unable to retrieve CSV from zipfile: " . $zipfile);
     }
-    
-    $this->fopen_utf8($fp);
+
+    if ($convertToUtf8) {
+      $this->fopen_utf8($fp);
+    }
     
     return $fp;
   }

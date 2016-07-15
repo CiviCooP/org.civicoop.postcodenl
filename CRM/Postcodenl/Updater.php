@@ -108,9 +108,18 @@ class CRM_Postcodenl_Updater {
     }
 
     try {
+      if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['city']) && !empty($params['city'])) {
+        //check whether the city name is alternativly spelled
+        $official_city = CRM_Core_DAO::executeQuery("SELECT * FROM `civicrm_postcodenl_alt_city` WHERE alt_city = %1", array(1=>array($params['city'], 'String')));
+        if ($official_city->fetch()) {
+          $params['city'] = $official_city->city;
+          $update_params['city'] = $official_city->city;
+        }
+      }
+      
       if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['street_number']) && isset($params['street_name']) && isset($params['city']) && !empty($params['street_number']) && !empty($params['street_name']) && !empty($params['city']) && (!isset($params['postal_code']) || empty($params['postal_code']))) {
         $info = civicrm_api3('PostcodeNL', 'get', array('adres' => $params['street_name'], 'huisnummer' => $params['street_number'], 'woonplaats' => $params['city']));
-        if (isset($info['values']) && is_array($info['values'])) {
+        if (isset($info['values']) && is_array($info['values']) && count($info['values']) > 0) {
           $values = reset($info['values']);
           if (!isset($params['postal_code']) || empty($params['postal_code'])) {
             $params['postal_code'] = $values['postcode_nr']." ".$values['postcode_letter'];
@@ -146,7 +155,7 @@ class CRM_Postcodenl_Updater {
         }
       } elseif (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['street_number']) && isset($params['postal_code']) && !empty($params['street_number']) && !empty($params['postal_code'])) {
         $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $params['postal_code'], 'huisnummer' => $params['street_number']));
-        if (isset($info['values']) && is_array($info['values'])) {
+        if (isset($info['values']) && is_array($info['values']) && count($info['values']) > 0) {
           $values = reset($info['values']);
 
           if ($check_street && (!isset($params['street_name']) || strtolower($values['adres']) != strtolower($params['street_name']))) {

@@ -29,10 +29,12 @@ function civicrm_api3_pro6pp_import($params) {
     
     $pro6pp = new CRM_Postcodenl_ImportPro6pp($authkey);
     $importedPostcodes = $pro6pp->importPro6pp();  
-    $importedBuurten = $pro6pp->importCBSBuurten();  
+    $importedBuurten = $pro6pp->importCBSBuurten();
+    $importedCities = $pro6pp->importCities();
     $pro6pp->copy();
     $return['imported_postcode'] = $importedPostcodes;
     $return['imported_buurten'] = $importedBuurten;
+    $return['imported_alt_cities'] = $importedCities;
     return civicrm_api3_create_success($return);
   } catch (Exception $e) {
     return civicrm_api3_create_error($e->getMessage(), $params);
