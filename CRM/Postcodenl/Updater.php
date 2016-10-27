@@ -48,46 +48,12 @@ class CRM_Postcodenl_Updater {
   }
 
   /**
-   * Check and update an address
+   * Updates an address to their corresponding information from the postcode table.
    * 
-   * This function updates the adress given by id address_id based on the data in params
-   * returns true when the address is changed or false when nothing is changed
-   * 
-   * @param int $address_id
+   * @param int $id
    * @param array $params
    * @param bool $check_street
-   * @return boolean
-   */
-  public static function checkAddress($address_id, $params, $check_street) {
-    $u = self::singleton();
-    $update_params = $u->updateAddressFields($address_id, $params, $check_street);
-    $updated = false;
-
-    if (count($update_params)) {
-      $dao = new CRM_Core_DAO_Address();
-      $dao->id = $address_id;
-      if ($dao->find()) {
-        $dao->copyValues($update_params);
-        $update_params2 = $u->parseAddress($params);        
-        $dao->copyValues($update_params2);
-        $dao->save();
-        $updated = true;
-      }
-    }
-
-    if ($u->updateCustomValues($address_id, $params)) {
-      $updated = true;
-    }
-
-    return $updated;
-  }
-
-  /**
-   * Updates an address to their corresponding information from the postcode table
-   * 
-   * @param int $address_id
-   * @param type $objAddress
-   * @param type $check_street
+   * @return void|array
    */
   protected function updateAddressFields($id, &$params, $check_street) {
     $update_params = array();

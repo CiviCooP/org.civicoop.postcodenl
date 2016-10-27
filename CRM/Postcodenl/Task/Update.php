@@ -47,7 +47,7 @@ class CRM_Postcodenl_Task_Update extends CRM_Contact_Form_Task {
     }
 
     $session = CRM_Core_Session::singleton();
-    $url = $session->readUserContext();
+    $url = str_replace("&amp;", "&", $session->readUserContext());
 
     $runner = new CRM_Queue_Runner(array(
       'title' => ts('Updating addresses'), //title fo the queue

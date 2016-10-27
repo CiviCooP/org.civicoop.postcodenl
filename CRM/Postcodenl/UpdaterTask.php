@@ -12,7 +12,7 @@ class CRM_Postcodenl_UpdaterTask {
     while ($dao->fetch()) {
       $params = array();
       CRM_Core_DAO::storeValues($dao, $params);
-      CRM_Postcodenl_Updater::checkAddress($dao->id, $params, false);
+      civicrm_api3('Address', 'create', $params);
     }
 
     return true;
@@ -30,7 +30,7 @@ class CRM_Postcodenl_UpdaterTask {
     while ($dao->fetch()) {
       $params = array();
       CRM_Core_DAO::storeValues($dao, $params);
-      CRM_Postcodenl_Updater::checkAddress($dao->id, $params, false);
+      civicrm_api3('Address', 'create', $params);
     }
 
     return true;
