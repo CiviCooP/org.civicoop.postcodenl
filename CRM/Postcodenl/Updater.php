@@ -12,6 +12,7 @@ class CRM_Postcodenl_Updater {
   protected $buurt_field;
   protected $buurtcode_field;
   protected $wijkcode_field;
+  protected $provincie_field;
   protected $manual_processing;
 
   protected function __construct() {
@@ -20,6 +21,7 @@ class CRM_Postcodenl_Updater {
     $this->buurt_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Buurt', 'custom_group_id' => $this->custom_group['id']));
     $this->buurtcode_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Buurtcode', 'custom_group_id' => $this->custom_group['id']));
     $this->wijkcode_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Wijkcode', 'custom_group_id' => $this->custom_group['id']));
+    $this->provincie_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Provincie', 'custom_group_id' => $this->custom_group['id']));
     $this->manual_processing = civicrm_api3('CustomField', 'getsingle', array('name' => 'cbs_manual_entry', 'custom_group_id' => $this->custom_group['id']));
   }
 
@@ -361,6 +363,7 @@ class CRM_Postcodenl_Updater {
     $this->checkCustomValue($this->buurt_field, '', $custom_values, $update_params);
     $this->checkCustomValue($this->buurtcode_field, '', $custom_values, $update_params);
     $this->checkCustomValue($this->wijkcode_field, '', $custom_values, $update_params);
+    $this->checkCustomValue($this->provincie_field, '', $custom_values, $update_params);
 
     $manualProcessing = false;
     if (!empty($custom_values[$this->manual_processing['id']])) {
@@ -391,6 +394,7 @@ class CRM_Postcodenl_Updater {
           $values = reset($info['values']);
 
           $this->checkCustomValue($this->gemeente_field, $values['gemeente'], $custom_values, $update_params);
+          $this->checkCustomValue($this->provincie_field, $values['provincie'], $custom_values, $update_params);
           if ($updateBuurtEnWijk) {
             $this->checkCustomValue($this->buurt_field, $values['cbs_buurtnaam'], $custom_values, $update_params);
             $this->checkCustomValue($this->buurtcode_field, $values['cbs_buurtcode'], $custom_values, $update_params);

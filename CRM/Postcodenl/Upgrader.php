@@ -32,6 +32,24 @@ class CRM_Postcodenl_Upgrader extends CRM_Postcodenl_Upgrader_Base {
     return true;
   }
 
+  public function upgrade_1004() {
+    $this->executeCustomDataFile('xml/auto_install.xml');
+    return TRUE;
+  }
+
+  public function upgrade_1005() {
+    CRM_Core_DAO::executeQuery("
+      update civicrm_value_adresgegevens_12 ag
+      inner join 
+	      ( select provincie collate utf8_general_ci as provincie, gemeente collate utf8_general_ci as gemeente 
+	        from civicrm_postcodenl group by gemeente
+        ) as p on ag.gemeente_24 = p.gemeente
+      SET ag.provincie_28 = p.provincie;
+    ");
+    return true;
+  }
+
+
   /**
    * Example: Run an external SQL script when the module is uninstalled
    */
