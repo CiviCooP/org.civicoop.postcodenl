@@ -365,20 +365,19 @@ class CRM_Postcodenl_Updater {
     $this->checkCustomValue($this->wijkcode_field, '', $custom_values, $update_params);
     $this->checkCustomValue($this->provincie_field, '', $custom_values, $update_params);
 
-    $manualProcessing = false;
-    if (!empty($custom_values[$this->manual_processing['id']])) {
-      $manualProcessing = true;
-    }
-
     try {
       $postcodeParams = array();
-      $updateBuurtEnWijk = true;
-      if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['postal_code']) && isset($params['street_number']) && !empty($params['postal_code']) && !empty($params['street_number'])) {
-        $postcodeParams['postcode'] = $params['postal_code'];
-        $postcodeParams['huisnummer'] = $params['street_number'];
-      } elseif (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['city']) && !empty($params['city']) && isset($params['state_province_id']) && !empty($params['state_province_id'])) {
-        $updateBuurtEnWijk = false;
-        $postcodeParams['woonplaats'] = $params['city'];
+
+      if (isset($params['country_id']) && $params['country_id'] == 1152) {
+        if (isset($params['postal_code'])) {
+          $postcodeParams['postcode'] = $params['postal_code'];
+        }
+        if (isset($params['street_number'])) {
+          $postcodeParams['huisnummer'] = $params['street_number'];
+        }
+        if (isset($params['city'])) {
+          $postcodeParams['woonplaats'] = $params['city'];
+        }
         if (isset($params['state_province_id']) && !empty($params['state_province_id'])) {
           $provincie = new CRM_Core_DAO_StateProvince();
           $provincie->id = $params['state_province_id'];
@@ -390,7 +389,16 @@ class CRM_Postcodenl_Updater {
 
       if (count($postcodeParams)) {
         $info = civicrm_api3('PostcodeNL', 'get', $postcodeParams);
-        if (isset($info['values']) && is_array($info['values']) && !$manualProcessing) {
+        if (isset($info['values']) && is_array($info['values'])) {
+          if (count($info['values']) == 1) {
+            // we have exactly one address, we can update buurt and wijk
+            $updateBuurtEnWijk = TRUE;
+          }
+          else {
+            // more addresses are returned, so don't update buurt and wijk
+            $updateBuurtEnWijk = FALSE;
+          }
+
           $values = reset($info['values']);
 
           $this->checkCustomValue($this->gemeente_field, $values['gemeente'], $custom_values, $update_params);
@@ -412,7 +420,7 @@ class CRM_Postcodenl_Updater {
       //do nothing on exception, possibly the postcode doesn't exist
     }
 
-    return false;
+    return FALSE;
   }
 
   protected function checkCustomValue($custom_field, $checkValue, $custom_values, &$update_params) {
