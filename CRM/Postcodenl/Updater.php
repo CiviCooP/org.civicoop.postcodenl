@@ -36,7 +36,8 @@ class CRM_Postcodenl_Updater {
     if (($op == 'edit' || $op == 'create') && $objectName == 'Address') {
       $u = self::singleton();
       $u->parseAddress($params);
-      $u->updateAddressFields($id, $params, false);
+      $u->updateAddressFields($id, $params);
+      $u->parseAddress($params);
     }
   }
 
@@ -54,10 +55,9 @@ class CRM_Postcodenl_Updater {
    * 
    * @param int $id
    * @param array $params
-   * @param bool $check_street
    * @return void|array
    */
-  protected function updateAddressFields($id, &$params, $check_street) {
+  protected function updateAddressFields($id, &$params) {
     $update_params = array();
 
     if ($id) {
@@ -125,8 +125,7 @@ class CRM_Postcodenl_Updater {
         $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $params['postal_code'], 'huisnummer' => $params['street_number']));
         if (isset($info['values']) && is_array($info['values']) && count($info['values']) > 0) {
           $values = reset($info['values']);
-
-          if ($check_street && (!isset($params['street_name']) || strtolower($values['adres']) != strtolower($params['street_name']))) {
+          if (!isset($params['street_name']) || strtolower($values['adres']) != strtolower($params['street_name'])) {
             $params['street_name'] = $values['adres'];
             $update_params['street_name'] = $values['adres'];
           }
