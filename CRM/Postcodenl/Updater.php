@@ -58,6 +58,9 @@ class CRM_Postcodenl_Updater {
    * @return void|array
    */
   protected function updateAddressFields($id, &$params) {
+    if (isset($params['state_province_id']) && $params['state_province_id'] == 'null') {
+      unset($params['state_province_id']);
+    }
     $update_params = array();
 
     if ($id) {
@@ -164,36 +167,41 @@ class CRM_Postcodenl_Updater {
             'String'
           )
         ));
-        if ($dao->fetch() && $dao->N == 1) {
-          $state_province = new CRM_Core_DAO_StateProvince();
-          $state_province->name = $dao->provincie;
-          $state_province->country_id = $params['country_id'];
-          if ($state_province->find(TRUE)) {
-            $params['state_province_id'] = $state_province->id;
-            $update_params['state_province_id'] = $state_province->id;
+        if ($dao->N == 1 && $dao->fetch()) {
+          $state_province_id = $this->getProvinceIdByDutchName($dao->provincie);
+          if (!empty($state_province_id)) {
+            $params['state_province_id'] = $state_province_id;
+            $update_params['state_province_id'] = $state_province_id;
           }
         }
       } elseif (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['postal_code']) && !empty($params['postal_code']) && empty($params['city'])) {
         $postcode = str_replace(" ", "", $params['postal_code']);
         $dao = CRM_Core_DAO::executeQuery("SELECT provincie, woonplaats from civicrm_postcodenl where postcode_nr = '".substr($postcode, 0, 4)."' and postcode_letter = '".substr($postcode, 4, 2)."' GROUP BY woonplaats, provincie");
         if ($dao->fetch() && $dao->N == 1) {
-          $params['city'] = $dao->woonplaats;
-          $update_params['city'] = $dao->woonplaats;
-
-          $state_province = new CRM_Core_DAO_StateProvince();
-          $state_province->name = $dao->provincie;
-          $state_province->country_id = $params['country_id'];
-          if ($state_province->find(true) && empty($params['state_province_id'])) {
-            $params['state_province_id'] = $state_province->id;
-            $update_params['state_province_id'] = $state_province->id;
+          $state_province_id = $this->getProvinceIdByDutchName($dao->provincie);
+          if (!empty($state_province_id)) {
+            $params['state_province_id'] = $state_province_id;
+            $update_params['state_province_id'] = $state_province_id;
           }
         }
       }
     } catch (Exception $e) {
       //do nothing on exception, possibly the postcode doesn't exist
     }
-
     return $update_params;
+  }
+
+  protected function getProvinceIdByDutchName($province) {
+    $result = civicrm_api3('Address', 'getoptions', array(
+      'sequential' => 1,
+      'field' => "state_province_id",
+    ));
+    foreach($result['values'] as $state_province) {
+      if ($state_province['value'] == $province) {
+        return $state_province['key'];
+      }
+    }
+    return false;
   }
 
   /**
