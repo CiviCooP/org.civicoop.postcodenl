@@ -56,7 +56,6 @@ function postcodenl_retrieve(blockId, housenumber, postcode, toevoeging) {
 }
 
 function postcodenl_init_addressBlock(blockId, address_table_id) {
-    //var first_row = cj('#address_table_'+blockId+' tbody tr:first');
     var first_row = cj(address_table_id + ' tbody tr:first');
     
     first_row.before('<tr class="hiddenElement postcodenl_input_row" id="postcodenl_row_' + blockId + '"><td>Postcode<br /><input class="form-text" id="postcodenl_postcode_' + blockId + '" /></td><td>Huisnummer<br /><input id="postcodenl_huisnummer_' + blockId + '" class="form-text six"></td><td>Toevoeging<br /><input id="postcodenl_huisnummer_toev_' + blockId + '" class="form-text six"></td></tr>');
@@ -100,7 +99,8 @@ function postcodenl_init_addressBlock(blockId, address_table_id) {
     cj('#address_' + blockId + '_country_id').change(function(e) {
         if ((cj('#address_' + blockId + '_country_id').val()) == 1152) {
             if (typeof processAddressFields == 'function' && cj('#addressElements_'+blockId).length > 0) {
-                processAddressFields( 'addressElements' , blockId, 1 );
+                cj('#addressElements_' + blockId).show();
+                cj('#streetAddress_' + blockId).hide();
             }
             
             cj('#postcodenl_row_' + blockId).show();
