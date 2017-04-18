@@ -70,7 +70,7 @@ class CRM_Postcodenl_Form_UpdateAddresses extends CRM_Core_Form {
     $runner = new CRM_Queue_Runner(array(
       'title' => ts('Updating addresses'), //title fo the queue
       'queue' => $queue, //the queue object
-      'errorMode'=> CRM_Queue_Runner::ERROR_ABORT, //abort upon error and keep task in queue
+      'errorMode'=> CRM_Queue_Runner::ERROR_CONTINUE, //abort upon error and keep task in queue
       'onEnd' => array('CRM_Postcodenl_Form_UpdateAddresses', 'onEnd'), //method which is called as soon as the queue is finished
       'onEndUrl' => CRM_Utils_System::url('civicrm', 'reset=1'), //go to page after all tasks are finished
     ));
