@@ -114,14 +114,10 @@ class CRM_Postcodenl_Updater {
             $params['manual_geo_code'] = true;
           }
 
-          $state_province = new CRM_Core_DAO_StateProvince();
-          $state_province->name = $values['provincie'];
-          $state_province->country_id = $params['country_id'];
-          if ($state_province->find(TRUE)) {
-            if (!isset($params['state_province_id']) || $params['state_province_id'] != $state_province->id) {
-              $params['state_province_id'] = $state_province->id;
-              $update_params['state_province_id'] = $state_province->id;
-            }
+          $state_province_id = $this->getProvinceIdByDutchName($values['provincie']);
+          if (!empty($state_province_id)) {
+            $params['state_province_id'] = $state_province_id;
+            $update_params['state_province_id'] = $state_province_id;
           }
         }
       } elseif (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['street_number']) && isset($params['postal_code']) && !empty($params['street_number']) && !empty($params['postal_code'])) {
@@ -150,14 +146,10 @@ class CRM_Postcodenl_Updater {
             $params['manual_geo_code'] = true;
           }
 
-          $state_province = new CRM_Core_DAO_StateProvince();
-          $state_province->name = $values['provincie'];
-          $state_province->country_id = $params['country_id'];
-          if ($state_province->find(TRUE)) {
-            if (!isset($params['state_province_id']) || $params['state_province_id'] != $state_province->id) {
-              $params['state_province_id'] = $state_province->id;
-              $update_params['state_province_id'] = $state_province->id;
-            }
+          $state_province_id = $this->getProvinceIdByDutchName($values['provincie']);
+          if (!empty($state_province_id)) {
+            $params['state_province_id'] = $state_province_id;
+            $update_params['state_province_id'] = $state_province_id;
           }
         }
       } elseif (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['city']) && !empty($params['city']) && empty($params['state_province_id'])) {
