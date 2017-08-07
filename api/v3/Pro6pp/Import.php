@@ -18,7 +18,7 @@
  */
 function civicrm_api3_pro6pp_import($params) {
   try {
-    
+
     if (!isset($params['authkey'])) {
       return civicrm_api3_create_error(ts('Authkey is required'), $params);
     }
@@ -26,10 +26,14 @@ function civicrm_api3_pro6pp_import($params) {
     $authkey = $params['authkey'];
     
     set_time_limit(-1);
-    
+
     $pro6pp = new CRM_Postcodenl_ImportPro6pp($authkey);
-    $importedPostcodes = $pro6pp->importPro6pp();  
-    $importedBuurten = $pro6pp->importCBSBuurten();
+    $importedPostcodes = $pro6pp->importPro6pp();
+    if(!$params['skip_cbs']){
+      $importedBuurten = $pro6pp->importCBSBuurten();
+    } else {
+      $importedBuurten = ts('Import CBS Buurten skipped');
+    }
     $importedCities = $pro6pp->importCities();
     $pro6pp->copy();
     $return['imported_postcode'] = $importedPostcodes;
