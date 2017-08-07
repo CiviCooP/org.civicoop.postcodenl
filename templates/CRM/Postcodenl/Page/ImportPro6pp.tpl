@@ -14,7 +14,6 @@
             </td>
 
         </tr>
-        
         <tr>
             <td class="label"></td>
             <td>
@@ -23,7 +22,6 @@
                 </div> 
             </td>
         </tr>
-
 
     </table>
     <div class="crm-submit-buttons">
