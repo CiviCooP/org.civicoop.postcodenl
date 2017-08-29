@@ -99,8 +99,7 @@ function postcodenl_init_addressBlock(blockId, address_table_id) {
     cj('#address_' + blockId + '_country_id').change(function(e) {
         if ((cj('#address_' + blockId + '_country_id').val()) == 1152) {
             if (typeof processAddressFields == 'function' && cj('#addressElements_'+blockId).length > 0) {
-                cj('#addressElements_' + blockId).show();
-                cj('#streetAddress_' + blockId).hide();
+                processAddressFields('addressElements', blockId, 1);
             }
             
             cj('#postcodenl_row_' + blockId).show();
