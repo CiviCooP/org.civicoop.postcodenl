@@ -30,7 +30,7 @@ function postcodenl_retrieve(blockId, housenumber, postcode, toevoeging) {
                 cj('#address_' + blockId + '_street_number').val(housenumber);
                 cj('#address_' + blockId + '_street_unit').val(toevoeging);
                 cj('#address_' + blockId + '_postal_code').val(postcode);
-                cj('#address_' + blockId + '_street_address').val(obj.adres + ' ' + housenumber+toevoeging);
+                cj('#address_' + blockId + '_street_address').val(obj.adres + ' ' + housenumber + ' ' + toevoeging);
                 cj('.crm-address-custom-set-block-' + blockId + ' input[data-crm-custom="Adresgegevens:Gemeente"]').val(obj.gemeente);
                 cj('.crm-address-custom-set-block-' + blockId + ' input[data-crm-custom="Adresgegevens:Buurt"]').val(obj.cbs_buurtnaam);
                 cj('#address_'+blockId+'_state_province_id option').filter(function() {
