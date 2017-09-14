@@ -1,0 +1,12 @@
+{
+  "name": "civicoop/org.civicoop.postcodenl",
+  "description": "Automatically autocompletes an address based on a dutch postcode",
+  "type": "civicrm-module",
+  "authors": [
+    {
+      "name": "Jaap Jansma",
+      "email": "helpdesk@civicoop.org"
+    }
+  ],
+  "license": "AGPL-3.0"
+}
