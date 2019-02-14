@@ -2,7 +2,6 @@
  * Function to retrieve the postcode and fill the fields
  */
 function postcodenl_retrieve(blockId, housenumber, postcode, toevoeging) {
-
     //check if country is NL.
     if ((cj('#address_' + blockId + '_country_id').val()) != 1152) {
         return;
@@ -99,6 +98,7 @@ function postcodenl_init_addressBlock(blockId, address_table_id) {
     cj('#address_' + blockId + '_country_id').change(function(e) {
         if ((cj('#address_' + blockId + '_country_id').val()) == 1152) {
             if (typeof processAddressFields == 'function' && cj('#addressElements_'+blockId).length > 0) {
+                processAddressFields('addressElements', blockId, 1);
                 cj('#addressElements_' + blockId).show();
                 cj('#streetAddress_' + blockId).hide();
             }
@@ -108,7 +108,6 @@ function postcodenl_init_addressBlock(blockId, address_table_id) {
             street_number_td.hide();
             street_unit_td.hide();
             postalcode_td.hide();
-            
             postcode_field.val(cj('#address_' + blockId + '_postal_code').val());
             housenumber_field.val(cj('#address_' + blockId + '_street_number').val());
             housenumber_toev_field.val(cj('#address_'+blockId+'_street_unit').val());
