@@ -69,7 +69,7 @@ Field to use in the autocomplete are
 Usage
 -----
 
-This extension provides a default mechanism for the address editing forms to autocomple addresses by querieng the API.
+This extension provides a default mechanism for the address editing forms to autocomplete addresses by querieng the API.
 
 It is recommended to enable Address Parsing under Administer --> Localisation --> Address settings.
 
