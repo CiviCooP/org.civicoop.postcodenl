@@ -6,6 +6,14 @@
 
 class CRM_Postcodenl_Updater {
 
+  /**
+   * Array holding the submitted street_units
+   * We use this because somehow civicrm throws the street unit away and adds it to the street_address.
+   *
+   * @var array
+   */
+  protected $street_units = array();
+
   protected static $_singleton;
   protected $custom_group;
   protected $gemeente_field;
@@ -47,6 +55,58 @@ class CRM_Postcodenl_Updater {
       $params = array();
       CRM_Core_DAO::storeValues($objectRef, $params);
       $u->updateCustomValues($objectId, $params);
+    }
+  }
+
+  /**
+   * When the country of an address is belgium set the right street_address in the right formatting.
+   *
+   * @param \CRM_Core_Form $form
+   */
+  public static function setStreetAddressOnForm(CRM_Core_Form $form) {
+    if (!$form instanceof CRM_Contact_Form_Inline_Address && !$form instanceof CRM_Contact_Form_Contact) {
+      return;
+    }
+    // Set the all address Field Values
+    $values = $form->getVar('_values');
+    $allAddressFields = $form->get_template_vars('allAddressFieldValues');
+    $allAddressFields = json_decode($allAddressFields, TRUE);
+    foreach($values['address'] as $locBlockNo => $address) {
+      if ($address['country_id'] == 1152) {
+        if ($allAddressFields && isset($allAddressFields['street_address_' . $locBlockNo]) && isset($address['street_address'])) {
+          $allAddressFields['street_address_' . $locBlockNo] = $address['street_address'];
+        }
+        $defaults = array();
+        $defaults['address'][$locBlockNo]['street_address'] = $address['street_address'];
+        $form->setDefaults($defaults);
+      }
+    }
+    if ($allAddressFields) {
+      $form->assign('allAddressFieldValues', json_encode($allAddressFields));
+    }
+  }
+
+  /**
+   * The build form hook retrieves the submitted Street unit which we could use later
+   * to glue the address together. CiviCRM somehow adds the street unit to the street address and makes the street unit field empty.
+   *
+   * @param \CRM_Core_Form $form
+   *
+   */
+  public static function storetreetUnitFromFormSubmission(CRM_Core_Form $form) {
+    if (!$form instanceof CRM_Contact_Form_Inline_Address && !$form instanceof CRM_Contact_Form_Contact) {
+      return;
+    }
+
+    $parser = self::singleton();
+    $parser->street_units = array();
+
+    $submittedValues = $form->exportValues();
+    foreach($submittedValues['address'] as $locBlockNo => $address) {
+      if (isset($address['country_id']) && $address['country_id'] == 1152) {
+        $street_unit = $address['street_unit'];
+        $parser->street_units[] = $street_unit;
+      }
     }
   }
 
@@ -209,6 +269,18 @@ class CRM_Postcodenl_Updater {
   protected function parseAddress(&$params) {
     $update_params = array();
     if (isset($params['country_id']) && $params['country_id'] == 1152) {
+      // Fix street unit
+      if (empty($params['street_unit']) && is_array($this->street_units)) {
+        $street_unit = array_shift($this->street_units);
+        if (!empty($street_unit)) {
+          $params['street_unit'] = $street_unit;
+          // Check if street unit is part of the street_name and if so remove it
+          $matches = [];
+          if (preg_match('/^(.*) (' . $street_unit . ')$/', $params['street_name'], $matches)) {
+            $params['street_name'] = substr($params['street_name'], 0, (-1 * strlen($street_unit) - 1));
+          }
+        }
+      }
       /*
        * glue if street_name <> empty and street_number <> empty, split otherwise if street_address not empty
        */

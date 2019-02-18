@@ -253,6 +253,17 @@ function postcodenl_civicrm_buildForm( $formName, &$form ) {
       $form->assign('allAddressFieldValues', json_encode($allAddressFieldValues));
     }
   }
+
+  if ($formName == 'CRM_Contact_Form_Contact') {
+    CRM_Postcodenl_Updater::storetreetUnitFromFormSubmission($form);
+    CRM_Postcodenl_Updater::setStreetAddressOnForm($form);
+
+  }
+  if ($formName == 'CRM_Contact_Form_Inline_Address') {
+    CRM_Postcodenl_Updater::storetreetUnitFromFormSubmission($form);
+    CRM_Postcodenl_Updater::setStreetAddressOnForm($form);
+  }
+
   if ($formName == 'CRM_Contact_Form_Contact' || $formName == 'CRM_Event_Form_ManageEvent_Location' || $formName == 'CRM_Event_Form_ManageEvent_EventInfo') {
     CRM_Core_Resources::singleton()->addScriptFile('org.civicoop.postcodenl', 'postcodenl.js');
   }
