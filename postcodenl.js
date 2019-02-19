@@ -158,13 +158,3 @@ function postcodenl_reset() {
     cj('.postcodenl_input_row').remove();
 }
 
-
-cj(function() {
-    cj.each(['show', 'hide'], function (i, ev) {
-        var el = cj.fn[ev];
-        cj.fn[ev] = function () {
-          this.trigger(ev);
-          return el.apply(this, arguments);
-        };
-      });
-});
