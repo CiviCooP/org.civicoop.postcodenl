@@ -35,6 +35,7 @@ function postcodenl_retrieve(blockId, housenumber, postcode, toevoeging) {
                 cj('#address_'+blockId+'_state_province_id option').filter(function() {
                   return cj(this).html() == obj.provincie;  
                 }).prop('selected', true);
+                cj('#address_'+blockId+'_state_province_id').trigger('change');
 
             } else if (data.is_error == 0 && data.count == 0) {
                 cj('#address_' + blockId + '_street_address').val('');
@@ -46,6 +47,7 @@ function postcodenl_retrieve(blockId, housenumber, postcode, toevoeging) {
                 cj('.crm-address-custom-set-block-' + blockId + ' input[data-crm-custom="Adresgegevens:Gemeente"]').val();
                 cj('.crm-address-custom-set-block-' + blockId + ' input[data-crm-custom="Adresgegevens:Buurt"]').val();
                 cj('#address_'+blockId+'_state_province_id option:selected').prop('selected', false);
+                cj('#address_'+blockId+'_state_province_id').trigger('change');
             }
             
             cj('#address_' + blockId + '_street_name').removeClass('ac_loading');
