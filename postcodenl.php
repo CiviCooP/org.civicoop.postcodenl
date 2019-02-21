@@ -205,7 +205,7 @@ function postcodenl_civicrm_post( $op, $objectName, $objectId, &$objectRef ) {
 function postcodenl_civicrm_searchTasks( $objectName, &$tasks ) {
   if ($objectName == 'contact' && CRM_Core_Permission::check('administer CiviCRM')) {
     $tasks['postcodenl_update_addresses'] = array(
-      'title' => ts('Update address from newest Postcode database'),
+      'title' => ts('Update addresses from Dutch postcode database'),
       'class' => 'CRM_Postcodenl_Task_Update'
     );
   }

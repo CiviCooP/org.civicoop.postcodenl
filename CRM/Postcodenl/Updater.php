@@ -244,12 +244,14 @@ class CRM_Postcodenl_Updater {
   }
 
   protected function getProvinceIdByDutchName($province) {
-    $result = civicrm_api3('StateProvince', 'get', array(
+    $result = civicrm_api3('Address', 'getoptions', array(
+      'sequential' => 1,
+      'field' => "state_province_id",
       'country_id' => 1152,
     ));
     foreach($result['values'] as $state_province) {
-      if (ts($state_province['name']) == $province) {
-        return $state_province['id'];
+      if ($state_province['value'] == $province) {
+        return $state_province['key'];
       }
     }
     return false;
