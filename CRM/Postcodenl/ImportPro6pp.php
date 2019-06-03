@@ -55,7 +55,9 @@ class CRM_Postcodenl_ImportPro6pp {
       $gemeente = $data[$headers[utf8_encode('municipality')]];
       $woonplaats = $data[$headers[utf8_encode('city')]];
       $lat = $data[$headers[utf8_encode('lat')]];
+      $latSql = $lat != '' ? $lat : 'NULL';
       $lng = $data[$headers[utf8_encode('lng')]];
+      $lngSql = $lng != '' ? $lng : 'NULL';
       $huisnummers = explode(";", $data[$headers[utf8_encode('streetnumbers')]]);
       //one records could contain multiple sets of housenummbers, seperated by 1-10;40-50;
       foreach ($huisnummers as $huisnr) {
@@ -80,7 +82,7 @@ class CRM_Postcodenl_ImportPro6pp {
           if (strlen($values)) {
             $values .= ",";
           }
-          $values .= " ('" . $postcode_cijfer . "', '" . $postcode_letter . "', '" . $start . "', '" . $eind . "', '" . $adres . "', '" . $even . "', '" . $provincie . "', '" . $gemeente . "', '" . $woonplaats . "', '" . $lat . "', '" . $lng . "')";
+          $values .= " ('" . $postcode_cijfer . "', '" . $postcode_letter . "', '" . $start . "', '" . $eind . "', '" . $adres . "', '" . $even . "', '" . $provincie . "', '" . $gemeente . "', '" . $woonplaats . "'," . $latSql . "," . $lngSql . ")";
         }
       }
       
