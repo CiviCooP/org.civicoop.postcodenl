@@ -45,8 +45,19 @@ class CRM_Postcodenl_Updater {
       $u = self::singleton();
       // Set manual processing to true, when address is not linked to an contact.
       // This is usually the case with events and in that case it is not really important to autocomplete the address
-      if (!$id && empty($params['contact_id']) && !isset($params['custom_'.$u->manual_processing['id']])) {
+      $contactIdIsEmpty = empty($params['contact_id']) || $params['contact_id'] == 'null' ? true : false;
+      if (!$id && $contactIdIsEmpty && !isset($params['custom_'.$u->manual_processing['id']])) {
+        var_dump($params);
         $params['custom_'.$u->manual_processing['id']] = 1;
+      } elseif ($contactIdIsEmpty && !isset($params['custom_'.$u->manual_processing['id']])) {
+        // Retrieve current value from database for manual processing
+        $dao = CRM_Core_DAO::singleValueQuery("SELECT {$u->manual_processing['column_name']} as manual_processing from `{$u->custom_group['table_name']}` WHERE entity_id = %1", array(1 => array($id, 'Integer')));
+        if ($dao->fetch) {
+          $params['custom_' . $u->manual_processing['id']] = $dao->manual_processing ? 1 : 0;
+        } else {
+          // Value is not found so set to manual processing.
+          $params['custom_'.$u->manual_processing['id']] = 1;
+        }
       }
       $u->parseAddress($params);
       $u->updateAddressFields($id, $params);
@@ -304,7 +315,7 @@ class CRM_Postcodenl_Updater {
         }
         $params['street_address'] = $this->glueStreetAddressNl($streetParts);
         $update_params['street_address'] = $this->glueStreetAddressNl($streetParts);
-      } elseif (!empty($params['street_name']) && !empty($params['street_number'])) {
+      } elseif (!empty($params['street_name']) || !empty($params['street_number'])) {
         $params['street_address'] = $this->glueStreetAddressNl($params);
         $update_params['street_address'] = $this->glueStreetAddressNl($params);
       }
