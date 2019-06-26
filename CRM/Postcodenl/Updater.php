@@ -47,7 +47,6 @@ class CRM_Postcodenl_Updater {
       // This is usually the case with events and in that case it is not really important to autocomplete the address
       $contactIdIsEmpty = empty($params['contact_id']) || $params['contact_id'] == 'null' ? true : false;
       if (!$id && $contactIdIsEmpty && !isset($params['custom_'.$u->manual_processing['id']])) {
-        var_dump($params);
         $params['custom_'.$u->manual_processing['id']] = 1;
       } elseif ($contactIdIsEmpty && !isset($params['custom_'.$u->manual_processing['id']])) {
         // Retrieve current value from database for manual processing
