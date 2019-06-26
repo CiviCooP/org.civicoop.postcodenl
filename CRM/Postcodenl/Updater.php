@@ -43,6 +43,11 @@ class CRM_Postcodenl_Updater {
   public static function pre($op, $objectName, $id, &$params) {
     if (($op == 'edit' || $op == 'create') && $objectName == 'Address') {
       $u = self::singleton();
+      // Set manual processing to true, when address is not linked to an contact.
+      // This is usually the case with events and in that case it is not really important to autocomplete the address
+      if (!$id && empty($params['contact_id']) && !isset($params['custom_'.$u->manual_processing['id']])) {
+        $params['custom_'.$u->manual_processing['id']] = 1;
+      }
       $u->parseAddress($params);
       $u->updateAddressFields($id, $params);
       $u->parseAddress($params);
