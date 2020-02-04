@@ -182,20 +182,27 @@ function _postcodenl_getMenuKeyMax($menuArray) {
 
 /**
  * Implementation hook_civicrm_pre
- * 
+ *
  * Used to updated the info on gemeneete, buurtnaam, buurtcode, wijkcode
- * 
+ *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_pre
  */
 function postcodenl_civicrm_pre($op, $objectName, $id, &$params) {
   CRM_Postcodenl_Updater::pre($op, $objectName, $id, $params);
+  if (isset($params['country_id']) && $params['country_id'] == 1152) {
+    // skip_geocode is an optional parameter through the api.
+    // manual_geo_code is on the contact edit form. They do the same thing....
+    if (empty($params['skip_geocode']) && empty($params['manual_geo_code'])) {
+      CRM_Core_BAO_Address::addGeocoderData($params);
+    }
+  }
 }
 
 /**
  * Implementation hook_civicrm_post
- * 
+ *
  * Used to updated the info on gemeneete, buurtnaam, buurtcode, wijkcode
- * 
+ *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_post
  */
 function postcodenl_civicrm_post( $op, $objectName, $objectId, &$objectRef ) {
@@ -226,7 +233,7 @@ function postcodenl_civicrm_alterContent(  &$content, $context, $tplName, &$obje
     $template = CRM_Core_Smarty::singleton();
     $content .= $template->fetch('CRM/Event/Form/ManageEvent/Location_js.tpl');
   }
-  
+
 }
 
 function postcodenl_civicrm_buildForm( $formName, &$form ) {
