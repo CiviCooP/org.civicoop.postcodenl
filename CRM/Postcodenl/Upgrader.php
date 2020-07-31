@@ -14,7 +14,7 @@ class CRM_Postcodenl_Upgrader extends CRM_Postcodenl_Upgrader_Base {
   public function install() {
     $this->executeSqlFile('sql/install.sql');
   }
-  
+
   public function upgrade_1001() {
     $this->ctx->log->info('Applying update 1001');
     // this path is relative to the extension base dir
@@ -26,7 +26,7 @@ class CRM_Postcodenl_Upgrader extends CRM_Postcodenl_Upgrader_Base {
     $this->executeCustomDataFile('xml/auto_install.xml');
     return true;
   }
-  
+
   public function upgrade_1003() {
     $this->executeSqlFile('sql/upgrade_1003.sql');
     return true;
@@ -40,8 +40,8 @@ class CRM_Postcodenl_Upgrader extends CRM_Postcodenl_Upgrader_Base {
   public function upgrade_1005() {
     CRM_Core_DAO::executeQuery("
       update civicrm_value_adresgegevens_12 ag
-      inner join 
-	      ( select provincie collate utf8_general_ci as provincie, gemeente collate utf8_general_ci as gemeente 
+      inner join
+	      ( select provincie collate utf8_general_ci as provincie, gemeente collate utf8_general_ci as gemeente
 	        from civicrm_postcodenl group by gemeente
         ) as p on ag.gemeente_24 = p.gemeente
       SET ag.provincie_28 = p.provincie;
@@ -49,6 +49,10 @@ class CRM_Postcodenl_Upgrader extends CRM_Postcodenl_Upgrader_Base {
     return true;
   }
 
+  public function upgrade_1006() {
+    $this->executeSqlFile('sql/upgrade_1006.sql');
+    return true;
+  }
 
   /**
    * Example: Run an external SQL script when the module is uninstalled
@@ -57,7 +61,7 @@ class CRM_Postcodenl_Upgrader extends CRM_Postcodenl_Upgrader_Base {
     $this->removeCustomGroup('Adresgegevens');
    $this->executeSqlFile('sql/uninstall.sql');
   }
-  
+
   protected function removeCustomGroup($group_name) {
     $gid = civicrm_api3('CustomGroup', 'getValue', array('return' => 'id', 'name' => $group_name));
     if ($gid) {
