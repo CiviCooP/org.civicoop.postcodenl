@@ -23,7 +23,8 @@ class CRM_Postcodenl_ImportPro6pp {
    * @return int
    */
   public function importPro6pp() {
-    $fp = $this->getStreamToCSV('download_nl_sixpp.zip');
+    $fp = $this->getStreamToCSV('download_nl_sixpp.zip', TRUE, FALSE);
+    
     $headers = array();
 
     $lineNr = 0;
@@ -234,7 +235,8 @@ class CRM_Postcodenl_ImportPro6pp {
     $temp_file = tempnam(sys_get_temp_dir(), 'pro6pp');
 
     if ($useMeta) {
-      $json = file_get_contents($this->metaUrl . '?auth_key=' . $this->key . '&asset=' . $asset);
+      $get_url = $this->metaUrl . '?auth_key=' . $this->key . '&asset=' . $asset;
+      $json = file_get_contents($get_url);
       $meta_data = json_decode($json);
       $zipfile = $meta_data->results->download_link;
     } else {
