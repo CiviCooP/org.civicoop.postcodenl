@@ -118,66 +118,24 @@ function postcodenl_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
  */
-function postcodenl_civicrm_navigationMenu( &$params ) {
-  $maxKey = _postcodenl_getMenuKeyMax($params);
-
-  $parent =_postcodenl_get_parent_id_navigation_menu($params, 'Administer');
-
-  $parent['child'][$maxKey+1] = array (
-    'attributes' => array (
-      "label"=> ts('Import postcode from pro6pp'),
-      "name"=> ts('Import postcode from pro6pp'),
-      "url"=> "civicrm/admin/import/pro6pp",
-      "permission" => "administer CiviCRM",
-      "parentID" => $parent['attributes']['navID'],
-      "active" => 1,
-      //"navID" => $maxKey + 1,
-    ),
-    'child' => array(),
-  );
-
-  $contactParent =_postcodenl_get_parent_id_navigation_menu($params, 'Contacts');
-  $contactParent['child'][$maxKey+2] = array (
-    'attributes' => array (
-      "label"=> ts('Update addresses'),
-      "name"=> ts('Update addresses'),
-      "url"=> "civicrm/contact/updateaddresses",
-      "permission" => "administer CiviCRM",
-      "parentID" => $contactParent['attributes']['navID'],
-      "active" => 1,
-      //"navID" => $maxKey + 1,
-    ),
-    'child' => array(),
-  );
-}
-
-function _postcodenl_get_parent_id_navigation_menu(&$menu, $path, &$parent = NULL) {
-  // If we are done going down the path, insert menu
-  if (empty($path)) {
-    return $parent;
-  } else {
-    // Find an recurse into the next level down
-    $found = false;
-    $path = explode('/', $path);
-    $first = array_shift($path);
-    foreach ($menu as $key => &$entry) {
-      if ($entry['attributes']['name'] == $first) {
-        if (!$entry['child']) $entry['child'] = array();
-        $found = _postcodenl_get_parent_id_navigation_menu($entry['child'], implode('/', $path), $entry);
-      }
-    }
-    return $found;
-  }
-}
-
-function _postcodenl_getMenuKeyMax($menuArray) {
-  $max = array(max(array_keys($menuArray)));
-  foreach($menuArray as $v) {
-    if (!empty($v['child'])) {
-      $max[] = _postcodenl_getMenuKeyMax($v['child']);
-    }
-  }
-  return max($max);
+function postcodenl_civicrm_navigationMenu( &$menu ) {
+  _postcodenl_civix_insert_navigation_menu($menu, 'Administer', array(
+    "label"=> ts('Import postcode from pro6pp'),
+    "name"=> ts('Import postcode from pro6pp'),
+    "url"=> "civicrm/admin/import/pro6pp",
+    "permission" => "administer CiviCRM",
+    'operator' => 'OR',
+    'separator' => 0
+  ));
+  _postcodenl_civix_insert_navigation_menu($menu, 'Contacts', array(
+    "label"=> ts('Update addresses'),
+    "name"=> ts('Update addresses'),
+    "url"=> "civicrm/contact/updateaddresses",
+    "permission" => "administer CiviCRM",
+    'operator' => 'OR',
+    'separator' => 0
+  ));
+  _postcodenl_civix_navigationMenu($menu);
 }
 
 /**
