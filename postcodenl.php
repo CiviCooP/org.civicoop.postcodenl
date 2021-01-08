@@ -147,7 +147,7 @@ function postcodenl_civicrm_navigationMenu( &$menu ) {
  */
 function postcodenl_civicrm_pre($op, $objectName, $id, &$params) {
   CRM_Postcodenl_Updater::pre($op, $objectName, $id, $params);
-  if (isset($params['country_id']) && $params['country_id'] == 1152) {
+  if ($objectName == 'Address' && isset($params['country_id']) && $params['country_id'] == 1152) {
     // skip_geocode is an optional parameter through the api.
     // manual_geo_code is on the contact edit form. They do the same thing....
     if (empty($params['skip_geocode']) && empty($params['manual_geo_code'])) {
