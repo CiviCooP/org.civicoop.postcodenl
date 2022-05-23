@@ -14,7 +14,7 @@
 
 /**
  * PostcodeNL.Get API
- * 
+ *
  * Returns the found postcode, woonplaats, gemeente with the queried paramaters
  *
  * @param array $params
@@ -49,9 +49,11 @@ function civicrm_api3_postcode_n_l_get($params) {
     'latitude',
     'longitude'
   );
-  
-  /* 
-   * check if at least one parameter is valid 
+
+  $updater = CRM_Postcodenl_Updater::singleton();
+
+  /*
+   * check if at least one parameter is valid
    * Also break up an postcode into postcode number (4 digits) and postcode letter (2 letters).
    *
    */
@@ -74,9 +76,9 @@ function civicrm_api3_postcode_n_l_get($params) {
       }
     }
   }
-  
+
   $sql = "SELECT * FROM `civicrm_postcodenl` WHERE 1";
-  
+
   /**
    * Build the where clausule of the postcode
    */
@@ -91,19 +93,19 @@ function civicrm_api3_postcode_n_l_get($params) {
       $where .= " AND (`even` = %".$i." XOR `adres` Like 'Postbus')";
       $values[$i] = array($even, 'Integer');
       $i++;
-      
+
       $where .= " AND ((%".$i." BETWEEN `huisnummer_van` AND `huisnummer_tot`) XOR (`adres` Like 'Postbus'))";
       $values[$i] = array($value, 'Integer');
-      $i++;      
+      $i++;
     } else {
       $where .= " AND `".$field."` = %".$i;
       $values[$i] = array($value, 'String');
       $i++;
-    }    
+    }
   }
   $sql .= $where . " LIMIT 0, 25";
   $dao = CRM_Core_DAO::executeQuery($sql, $values);
-  
+
   $returnValues = array();
   while($dao->fetch()) {
     $row = array();
@@ -112,6 +114,9 @@ function civicrm_api3_postcode_n_l_get($params) {
         $row[$field] = $dao->$field;
       }
     }
+    if (isset($row['provincie'])) {
+      $row['state_province_id'] = $updater->getProvinceIdByDutchName($row['provincie']);
+    }
     $returnValues[$dao->id] = $row;
   }
 
@@ -119,7 +124,7 @@ function civicrm_api3_postcode_n_l_get($params) {
       $returnValues, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject,
       'civicrm_postcodenl_get'
       );
-  
+
   return civicrm_api3_create_success($returnValues, $params, 'PostcodeNL', 'get');
 }
 

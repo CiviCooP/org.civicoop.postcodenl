@@ -1,4 +1,4 @@
-/* 
+/*
  * Function to retrieve the postcode and fill the fields
  */
 function postcodenl_retrieve(blockId, housenumber, postcode, toevoeging) {
@@ -15,8 +15,8 @@ function postcodenl_retrieve(blockId, housenumber, postcode, toevoeging) {
     //run only when a postcode is present
     if (postcode.length == 0) {
         return;
-    }   
-    
+    }
+
     cj('#address_' + blockId + '_street_name').addClass('ac_loading');
     cj('#address_' + blockId + '_city').addClass('ac_loading');
 
@@ -33,7 +33,7 @@ function postcodenl_retrieve(blockId, housenumber, postcode, toevoeging) {
                 cj('.crm-address-custom-set-block-' + blockId + ' input[data-crm-custom="Adresgegevens:Gemeente"]').val(obj.gemeente);
                 cj('.crm-address-custom-set-block-' + blockId + ' input[data-crm-custom="Adresgegevens:Buurt"]').val(obj.cbs_buurtnaam);
                 cj('#address_'+blockId+'_state_province_id option').filter(function() {
-                  return cj(this).html() == obj.provincie;  
+                  return cj(this).html() == obj.provincie || cj(this).val() == obj.state_province_id;
                 }).prop('selected', true);
                 cj('#address_'+blockId+'_state_province_id').trigger('change');
 
@@ -49,7 +49,7 @@ function postcodenl_retrieve(blockId, housenumber, postcode, toevoeging) {
                 cj('#address_'+blockId+'_state_province_id option:selected').prop('selected', false);
                 cj('#address_'+blockId+'_state_province_id').trigger('change');
             }
-            
+
             cj('#address_' + blockId + '_street_name').removeClass('ac_loading');
             cj('#address_' + blockId + '_city').removeClass('ac_loading');
         }
@@ -58,7 +58,7 @@ function postcodenl_retrieve(blockId, housenumber, postcode, toevoeging) {
 
 function postcodenl_init_addressBlock(blockId, address_table_id) {
     var first_row = cj(address_table_id + ' tbody tr:first');
-    
+
     first_row.before('<tr class="hiddenElement postcodenl_input_row" id="postcodenl_row_' + blockId + '"><td>Postcode<br /><input class="form-text" id="postcodenl_postcode_' + blockId + '" /></td><td>Huisnummer<br /><input id="postcodenl_huisnummer_' + blockId + '" class="form-text six"></td><td>Toevoeging<br /><input id="postcodenl_huisnummer_toev_' + blockId + '" class="form-text six"></td></tr>');
 
     var postcode_field = cj('#postcodenl_postcode_' + blockId);
@@ -73,7 +73,7 @@ function postcodenl_init_addressBlock(blockId, address_table_id) {
         cj('#address_' + blockId + '_postal_code').val(postcode_field.val());
         postcodenl_retrieve(blockId, housenumber_field.val(), postcode_field.val(), housenumber_toev_field.val());
     });
-    
+
     postcode_field.keyup(function(e) {
         cj('#address_' + blockId + '_postal_code').val(postcode_field.val());
         postcodenl_retrieve(blockId, housenumber_field.val(), postcode_field.val(), housenumber_toev_field.val());
@@ -83,20 +83,20 @@ function postcodenl_init_addressBlock(blockId, address_table_id) {
         cj('#address_' + blockId + '_street_number').val(housenumber_field.val());
         postcodenl_retrieve(blockId, housenumber_field.val(), postcode_field.val(), housenumber_toev_field.val());
     });
-    
+
     housenumber_field.keyup(function(e) {
         cj('#address_' + blockId + '_street_number').val(housenumber_field.val());
         postcodenl_retrieve(blockId, housenumber_field.val(), postcode_field.val(), housenumber_toev_field.val());
     });
-    
+
     housenumber_toev_field.change(function(e) {
         postcodenl_retrieve(blockId, housenumber_field.val(), postcode_field.val(), housenumber_toev_field.val());
     });
-    
+
     housenumber_toev_field.keyup(function(e) {
         postcodenl_retrieve(blockId, housenumber_field.val(), postcode_field.val(), housenumber_toev_field.val());
     });
-        
+
     cj('#address_' + blockId + '_country_id').change(function(e) {
         if ((cj('#address_' + blockId + '_country_id').val()) == 1152) {
             if (typeof processAddressFields == 'function' && cj('#addressElements_'+blockId).length > 0) {
@@ -104,9 +104,9 @@ function postcodenl_init_addressBlock(blockId, address_table_id) {
                 cj('#addressElements_' + blockId).show();
                 cj('#streetAddress_' + blockId).hide();
             }
-            
+
             cj('#postcodenl_row_' + blockId).show();
-                        
+
             street_number_td.hide();
             street_unit_td.hide();
             postalcode_td.hide();
@@ -139,7 +139,7 @@ function postcodenl_init_addressBlock(blockId, address_table_id) {
     cj('div.crm-address-custom-set-block-'+blockId+' input[data-crm-custom="Adresgegevens:cbs_manual_entry"]').change(function (e) {
         cj('#address_' + blockId + '_country_id').trigger('change');
     })
-    
+
     cj('#address_' + blockId + '_country_id').trigger('change');
 }
 

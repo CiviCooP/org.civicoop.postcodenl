@@ -127,7 +127,7 @@ class CRM_Postcodenl_Updater {
 
   /**
    * Updates an address to their corresponding information from the postcode table.
-   * 
+   *
    * @param int $id
    * @param array $params
    * @return void|array
@@ -162,7 +162,7 @@ class CRM_Postcodenl_Updater {
           $update_params['city'] = $official_city->city;
         }
       }
-      
+
       if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['street_number']) && isset($params['street_name']) && isset($params['city']) && !empty($params['street_number']) && !empty($params['street_name']) && !empty($params['city']) && (!isset($params['postal_code']) || empty($params['postal_code']))) {
         $info = civicrm_api3('PostcodeNL', 'get', array('adres' => $params['street_name'], 'huisnummer' => $params['street_number'], 'woonplaats' => $params['city']));
         if (isset($info['values']) && is_array($info['values']) && count($info['values']) > 0) {
@@ -258,14 +258,14 @@ class CRM_Postcodenl_Updater {
     return $update_params;
   }
 
-  protected function getProvinceIdByDutchName($province) {
+  public function getProvinceIdByDutchName($province) {
     $result = civicrm_api3('Address', 'getoptions', array(
       'sequential' => 1,
       'field' => "state_province_id",
       'country_id' => 1152,
     ));
     foreach($result['values'] as $state_province) {
-      if ($state_province['value'] == $province) {
+      if ($state_province['value'] == $province || $state_province['value'] == ($province .' (NL)') ) {
         return $state_province['key'];
       }
     }
@@ -276,9 +276,9 @@ class CRM_Postcodenl_Updater {
    * Parse the address for Dutch addresses
    * Glues together the different parts of an address or explode
    * the the street_adress into the different parts
-   * 
+   *
    * Returns an array with the changed parts of the address
-   * 
+   *
    * @param array $params
    * @return array
    */
@@ -319,7 +319,7 @@ class CRM_Postcodenl_Updater {
         $update_params['street_address'] = $this->glueStreetAddressNl($params);
       }
     }
-    
+
     return $update_params;
   }
 
@@ -370,7 +370,7 @@ class CRM_Postcodenl_Updater {
         /*
          * if the part is numeric, there are several possibilities:
          * - if the partKey is 0 so it is the first element, it is
-         *   assumed it is part of the street_name to cater for 
+         *   assumed it is part of the street_name to cater for
          *   situation like 2e Wormenseweg
          * - if not the first part and there is no street_number yet (foundStreetNumber
          *   is false), it is assumed this numeric part contains the street_number
@@ -432,12 +432,12 @@ class CRM_Postcodenl_Updater {
 
   /**
    * Update the custom values for an address
-   * 
+   *
    * The address data is given in params. The custom values are the community
    * cbs_area code etc...
-   * 
+   *
    * Returns true when the custom values are updated
-   *  
+   *
    * @param int $address_id
    * @param array $params
    * @return boolean
