@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.39
+
+* CiviCRM 5.69 Compatibility.
+
 ## Version 1.38
 
 * Select province even if its name has been altered in CiviCRM. E.g. from Limburg to Limburg (NL)
