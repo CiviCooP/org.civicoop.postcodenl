@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.40
+
+* Improvement for PHP 8. and CiviCRM 5.69
+
 ## Version 1.39
 
 * CiviCRM 5.69 Compatibility.

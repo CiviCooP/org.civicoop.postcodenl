@@ -42,9 +42,13 @@ class CRM_Postcodenl_Pro6pp_Downloader {
     if (!$zip->open($temp_file)) {
       throw new CRM_Core_Exception("Unable to open zipfile: " . $zipfile);
     }
+
+    $tempDirectory = \Civi::paths()->getPath(CIVICRM_TEMPLATE_COMPILEDIR."pro6pp");
+    CRM_Utils_File::createDir($tempDirectory);
     //only read first file in zip
     $name = $zip->getNameIndex(0);
-    $fp = $zip->getStream($name);
+    $zip->extractTo($tempDirectory);
+    $fp = fopen($tempDirectory . DIRECTORY_SEPARATOR . $name, 'r');
     if (!$fp) {
       throw new CRM_Core_Exception("Unable to retrieve CSV from zipfile: " . $zipfile);
     }
