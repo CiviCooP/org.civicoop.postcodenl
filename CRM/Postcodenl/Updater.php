@@ -84,7 +84,7 @@ class CRM_Postcodenl_Updater {
     }
     // Set the all address Field Values
     $values = $form->getVar('_values');
-    $allAddressFields = $form->get_template_vars('allAddressFieldValues');
+    $allAddressFields = $form->getTemplateVars('allAddressFieldValues');
     $allAddressFields = json_decode($allAddressFields, TRUE);
     foreach($values['address'] as $locBlockNo => $address) {
       if ($address['country_id'] == 1152) {
