@@ -26,7 +26,7 @@
     </table>
     <div class="crm-submit-buttons">
         <span class="crm-button-type-done">
-            <input class="validate form-submit default" name="import" value="{ts}Import{/ts}" type="button" onclick="pro6pp_import();">
+            <input class="validate form-submit default" name="import" value="{ts escape='htmlattribute'}Import{/ts}" type="button" onclick="pro6pp_import();">
         </span>
     </div>
 </div>
