@@ -11,7 +11,7 @@ class CRM_Postcodenl_Form_UpdateAddresses extends CRM_Core_Form {
 
   function buildQuickForm() {
 
-    $groupHierarchy = CRM_Contact_BAO_Group::getGroupsHierarchy(CRM_Core_PseudoConstant::nestedGroup(), NULL, '&nbsp;&nbsp;', TRUE);
+    $groupHierarchy = CRM_Contact_BAO_Group::getGroupsHierarchy(CRM_Core_PseudoConstant::nestedGroup(TRUE, NULL, TRUE, 'plain'), NULL, '- ', TRUE, FALSE, 'plain');
 
     // add select for groups
     $group = array('' => ts('- any group -')) + $groupHierarchy;
