@@ -14,16 +14,16 @@ class CRM_Postcodenl_Form_UpdateAddresses extends CRM_Core_Form {
     $groupHierarchy = CRM_Contact_BAO_Group::getGroupsHierarchy(CRM_Core_PseudoConstant::nestedGroup(), NULL, '&nbsp;&nbsp;', TRUE);
 
     // add select for groups
-    $group = array('' => ts('- any group -')) + $groupHierarchy;
+    $group = ['' => ts('- any group -')] + $groupHierarchy;
     $this->_groupElement = &$this->addElement('select', 'group_id', ts('Group'), $group);
 
-    $this->addButtons(array(
-      array(
+    $this->addButtons([
+      [
         'type' => 'submit',
         'name' => ts('Submit'),
         'isDefault' => TRUE,
-      ),
-    ));
+      ],
+    ]);
 
     // export form elements
     $this->assign('elementNames', $this->getRenderableElementNames());
@@ -33,33 +33,33 @@ class CRM_Postcodenl_Form_UpdateAddresses extends CRM_Core_Form {
   function postProcess() {
     $formValues = $this->exportValues();
 
-    $queue = CRM_Queue_Service::singleton()->create(array(
+    $queue = CRM_Queue_Service::singleton()->create([
       'type' => 'Sql',
       'name' => 'org.civicoop.postcodenl.updateaddresses',
       'reset' => TRUE, //do not flush queue upon creation
-    ));
+    ]);
 
 
     if (!empty($formValues['group_id'])) {
-      $params = array(array('group', 'IN', array($formValues['group_id'] => 1), 0, 0));
+      $params = [['group', 'IN', [$formValues['group_id'] => 1], 0, 0]];
     } else {
-      $params = array();
+      $params = [];
     }
     //list($contacts, $_) = CRM_Contact_BAO_Query::apiQuery($params, array('contact_id'), NULL, NULL, 0, 0);
-    list($contacts, $_) = CRM_Contact_BAO_Query::apiQuery($params, array('contact_id'), NULL, NULL, 0, 0, TRUE, TRUE, FALSE);
+    list($contacts, $_) = CRM_Contact_BAO_Query::apiQuery($params, ['contact_id'], NULL, NULL, 0, 0, TRUE, TRUE, FALSE);
     for($i=0; $i<$contacts; $i = $i + 100) {
-      $title = ts('Updating addresses %1/%2', array(
+      $title = ts('Updating addresses %1/%2', [
         1 => $i,
         2 => $contacts,
-      ));
+      ]);
 
       //create a task without parameters
       $task = new CRM_Queue_Task(
-        array(
+        [
           'CRM_Postcodenl_UpdaterTask',
           'UpdateFromQueue'
-        ), //call back method
-        array(serialize($params), $i, 100), //parameters,
+        ], //call back method
+        [serialize($params), $i, 100], //parameters,
         $title
       );
       //now add this task to the queue
@@ -67,13 +67,13 @@ class CRM_Postcodenl_Form_UpdateAddresses extends CRM_Core_Form {
     }
 
 
-    $runner = new CRM_Queue_Runner(array(
+    $runner = new CRM_Queue_Runner([
       'title' => ts('Updating addresses'), //title fo the queue
       'queue' => $queue, //the queue object
       'errorMode'=> CRM_Queue_Runner::ERROR_CONTINUE, //abort upon error and keep task in queue
-      'onEnd' => array('CRM_Postcodenl_Form_UpdateAddresses', 'onEnd'), //method which is called as soon as the queue is finished
+      'onEnd' => ['CRM_Postcodenl_Form_UpdateAddresses', 'onEnd'], //method which is called as soon as the queue is finished
       'onEndUrl' => CRM_Utils_System::url('civicrm', 'reset=1'), //go to page after all tasks are finished
-    ));
+    ]);
 
     $runner->runAllViaWeb(); // does not return
 
@@ -95,7 +95,7 @@ class CRM_Postcodenl_Form_UpdateAddresses extends CRM_Core_Form {
     // auto-rendered in the loop -- such as "qfKey" and "buttons".  These
     // items don't have labels.  We'll identify renderable by filtering on
     // the 'label'.
-    $elementNames = array();
+    $elementNames = [];
     foreach ($this->_elements as $element) {
       /** @var HTML_QuickForm_Element $element */
       $label = $element->getLabel();

@@ -119,22 +119,22 @@ function postcodenl_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
  */
 function postcodenl_civicrm_navigationMenu( &$menu ) {
-  _postcodenl_civix_insert_navigation_menu($menu, 'Administer', array(
+  _postcodenl_civix_insert_navigation_menu($menu, 'Administer', [
     "label"=> ts('Import postcode from pro6pp'),
     "name"=> ts('Import postcode from pro6pp'),
     "url"=> "civicrm/admin/import/pro6pp",
     "permission" => "administer CiviCRM",
     'operator' => 'OR',
     'separator' => 0
-  ));
-  _postcodenl_civix_insert_navigation_menu($menu, 'Contacts', array(
+  ]);
+  _postcodenl_civix_insert_navigation_menu($menu, 'Contacts', [
     "label"=> ts('Update addresses'),
     "name"=> ts('Update addresses'),
     "url"=> "civicrm/contact/updateaddresses",
     "permission" => "administer CiviCRM",
     'operator' => 'OR',
     'separator' => 0
-  ));
+  ]);
   _postcodenl_civix_navigationMenu($menu);
 }
 
@@ -169,10 +169,10 @@ function postcodenl_civicrm_post( $op, $objectName, $objectId, &$objectRef ) {
 
 function postcodenl_civicrm_searchTasks( $objectName, &$tasks ) {
   if ($objectName == 'contact' && CRM_Core_Permission::check('administer CiviCRM')) {
-    $tasks['postcodenl_update_addresses'] = array(
+    $tasks['postcodenl_update_addresses'] = [
       'title' => ts('Update addresses from Dutch postcode database'),
       'class' => 'CRM_Postcodenl_Task_Update'
-    );
+    ];
   }
 }
 
@@ -209,9 +209,9 @@ function postcodenl_civicrm_buildForm( $formName, &$form ) {
     $defaultValues = $form->getVar('_defaultValues');
     if ($defaultValues['location_option'] == 2) {
       $loc_id = $form->getVar('_oldLocBlockId');
-      $address_id = civicrm_api3('LocBlock', 'getvalue', array('return' => 'address_id', 'id' => $loc_id));
-      $address = civicrm_api3('Address', 'getsingle', array('id' => $address_id));
-      $allAddressFieldValues = array();
+      $address_id = civicrm_api3('LocBlock', 'getvalue', ['return' => 'address_id', 'id' => $loc_id]);
+      $address = civicrm_api3('Address', 'getsingle', ['id' => $address_id]);
+      $allAddressFieldValues = [];
       foreach ($address as $key => $val) {
         $allAddressFieldValues[$key . '_1'] = $val;
       }

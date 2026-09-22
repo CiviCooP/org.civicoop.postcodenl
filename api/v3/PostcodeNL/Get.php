@@ -24,15 +24,15 @@
  * @throws CRM_Core_Exception
  */
 function civicrm_api3_postcode_n_l_get($params) {
-  $validParamFields = array(
+  $validParamFields = [
     'id',
     'postcode',
     'huisnummer',
     'adres',
     'woonplaats',
     'gemeente',
-  );
-  $returnFields = array(
+  ];
+  $returnFields = [
     'id',
     'postcode_nr',
     'postcode_letter',
@@ -48,7 +48,7 @@ function civicrm_api3_postcode_n_l_get($params) {
     'cbs_buurtnaam',
     'latitude',
     'longitude'
-  );
+  ];
 
   $updater = CRM_Postcodenl_Updater::singleton();
 
@@ -57,7 +57,7 @@ function civicrm_api3_postcode_n_l_get($params) {
    * Also break up an postcode into postcode number (4 digits) and postcode letter (2 letters).
    *
    */
-  $validatedParams = array();
+  $validatedParams = [];
   foreach($params as $key => $value) {
     if (in_array($key, $validParamFields)) {
       if ($key == 'postcode') {
@@ -83,7 +83,7 @@ function civicrm_api3_postcode_n_l_get($params) {
    * Build the where clausule of the postcode
    */
   $where = "";
-  $values = array();
+  $values = [];
   $i = 1;
   foreach($validatedParams as $field => $value) {
     if ($field == 'huisnummer') {
@@ -91,24 +91,24 @@ function civicrm_api3_postcode_n_l_get($params) {
       //also there needs to be a check on even or odd
       $even = ($value % 2 == 0 ? 1 : 0);
       $where .= " AND (`even` = %".$i." XOR `adres` Like 'Postbus')";
-      $values[$i] = array($even, 'Integer');
+      $values[$i] = [$even, 'Integer'];
       $i++;
 
       $where .= " AND ((%".$i." BETWEEN `huisnummer_van` AND `huisnummer_tot`) XOR (`adres` Like 'Postbus'))";
-      $values[$i] = array($value, 'Integer');
+      $values[$i] = [$value, 'Integer'];
       $i++;
     } else {
       $where .= " AND `".$field."` = %".$i;
-      $values[$i] = array($value, 'String');
+      $values[$i] = [$value, 'String'];
       $i++;
     }
   }
   $sql .= $where . " LIMIT 0, 25";
   $dao = CRM_Core_DAO::executeQuery($sql, $values);
 
-  $returnValues = array();
+  $returnValues = [];
   while($dao->fetch()) {
-    $row = array();
+    $row = [];
     foreach($returnFields as $field) {
       if (isset($dao->$field)) {
         $row[$field] = $dao->$field;

@@ -12,7 +12,7 @@ class CRM_Postcodenl_Updater {
    *
    * @var array
    */
-  protected $street_units = array();
+  protected $street_units = [];
 
   protected static $_singleton;
   protected $custom_group;
@@ -24,13 +24,13 @@ class CRM_Postcodenl_Updater {
   protected $manual_processing;
 
   protected function __construct() {
-    $this->custom_group = civicrm_api3('CustomGroup', 'getsingle', array('name' => 'Adresgegevens'));
-    $this->gemeente_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Gemeente', 'custom_group_id' => $this->custom_group['id']));
-    $this->buurt_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Buurt', 'custom_group_id' => $this->custom_group['id']));
-    $this->buurtcode_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Buurtcode', 'custom_group_id' => $this->custom_group['id']));
-    $this->wijkcode_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Wijkcode', 'custom_group_id' => $this->custom_group['id']));
-    $this->provincie_field = civicrm_api3('CustomField', 'getsingle', array('name' => 'Provincie', 'custom_group_id' => $this->custom_group['id']));
-    $this->manual_processing = civicrm_api3('CustomField', 'getsingle', array('name' => 'cbs_manual_entry', 'custom_group_id' => $this->custom_group['id']));
+    $this->custom_group = civicrm_api3('CustomGroup', 'getsingle', ['name' => 'Adresgegevens']);
+    $this->gemeente_field = civicrm_api3('CustomField', 'getsingle', ['name' => 'Gemeente', 'custom_group_id' => $this->custom_group['id']]);
+    $this->buurt_field = civicrm_api3('CustomField', 'getsingle', ['name' => 'Buurt', 'custom_group_id' => $this->custom_group['id']]);
+    $this->buurtcode_field = civicrm_api3('CustomField', 'getsingle', ['name' => 'Buurtcode', 'custom_group_id' => $this->custom_group['id']]);
+    $this->wijkcode_field = civicrm_api3('CustomField', 'getsingle', ['name' => 'Wijkcode', 'custom_group_id' => $this->custom_group['id']]);
+    $this->provincie_field = civicrm_api3('CustomField', 'getsingle', ['name' => 'Provincie', 'custom_group_id' => $this->custom_group['id']]);
+    $this->manual_processing = civicrm_api3('CustomField', 'getsingle', ['name' => 'cbs_manual_entry', 'custom_group_id' => $this->custom_group['id']]);
   }
 
   public static function singleton() {
@@ -50,7 +50,7 @@ class CRM_Postcodenl_Updater {
         $params['custom_'.$u->manual_processing['id']] = 1;
       } elseif ($contactIdIsEmpty && !isset($params['custom_'.$u->manual_processing['id']])) {
         // Retrieve current value from database for manual processing
-        $dao = CRM_Core_DAO::singleValueQuery("SELECT {$u->manual_processing['column_name']} as manual_processing from `{$u->custom_group['table_name']}` WHERE entity_id = %1", array(1 => array($id, 'Integer')));
+        $dao = CRM_Core_DAO::singleValueQuery("SELECT {$u->manual_processing['column_name']} as manual_processing from `{$u->custom_group['table_name']}` WHERE entity_id = %1", [1 => [$id, 'Integer']]);
         if ($dao->fetch) {
           $params['custom_' . $u->manual_processing['id']] = $dao->manual_processing ? 1 : 0;
         } else {
@@ -67,7 +67,7 @@ class CRM_Postcodenl_Updater {
   public static function post($op, $objectName, $objectId, &$objectRef) {
     if ($objectName == 'Address' && ($op == 'create' || $op == 'edit')) {
       $u = self::singleton();
-      $params = array();
+      $params = [];
       CRM_Core_DAO::storeValues($objectRef, $params);
       $u->updateCustomValues($objectId, $params);
     }
@@ -91,7 +91,7 @@ class CRM_Postcodenl_Updater {
         if ($allAddressFields && isset($allAddressFields['street_address_' . $locBlockNo]) && isset($address['street_address'])) {
           $allAddressFields['street_address_' . $locBlockNo] = $address['street_address'];
         }
-        $defaults = array();
+        $defaults = [];
         $defaults['address'][$locBlockNo]['street_address'] = $address['street_address'];
         $form->setDefaults($defaults);
       }
@@ -114,7 +114,7 @@ class CRM_Postcodenl_Updater {
     }
 
     $parser = self::singleton();
-    $parser->street_units = array();
+    $parser->street_units = [];
 
     $submittedValues = $form->exportValues();
     foreach($submittedValues['address'] as $locBlockNo => $address) {
@@ -136,15 +136,15 @@ class CRM_Postcodenl_Updater {
     if (isset($params['state_province_id']) && $params['state_province_id'] == 'null') {
       unset($params['state_province_id']);
     }
-    $update_params = array();
+    $update_params = [];
 
     if ($id) {
-      $custom_id = CRM_Core_DAO::singleValueQuery("SELECT id from `{$this->custom_group['table_name']}` WHERE entity_id = %1", array(
-        1 => array(
+      $custom_id = CRM_Core_DAO::singleValueQuery("SELECT id from `{$this->custom_group['table_name']}` WHERE entity_id = %1", [
+        1 => [
           $id,
           'Integer'
-        )
-      ));
+        ]
+      ]);
       if ($custom_id && !empty($params['custom_'.$this->manual_processing['id'].'_'.$custom_id])) {
         return;
       }
@@ -156,7 +156,7 @@ class CRM_Postcodenl_Updater {
     try {
       if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['city']) && !empty($params['city'])) {
         //check whether the city name is alternativly spelled
-        $official_city = CRM_Core_DAO::executeQuery("SELECT * FROM `civicrm_postcodenl_alt_city` WHERE alt_city = %1", array(1=>array($params['city'], 'String')));
+        $official_city = CRM_Core_DAO::executeQuery("SELECT * FROM `civicrm_postcodenl_alt_city` WHERE alt_city = %1", [1=>[$params['city'], 'String']]);
         if ($official_city->fetch()) {
           $params['city'] = $official_city->city;
           $update_params['city'] = $official_city->city;
@@ -164,7 +164,7 @@ class CRM_Postcodenl_Updater {
       }
 
       if (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['street_number']) && isset($params['street_name']) && isset($params['city']) && !empty($params['street_number']) && !empty($params['street_name']) && !empty($params['city']) && (!isset($params['postal_code']) || empty($params['postal_code']))) {
-        $info = civicrm_api3('PostcodeNL', 'get', array('adres' => $params['street_name'], 'huisnummer' => $params['street_number'], 'woonplaats' => $params['city']));
+        $info = civicrm_api3('PostcodeNL', 'get', ['adres' => $params['street_name'], 'huisnummer' => $params['street_number'], 'woonplaats' => $params['city']]);
         if (isset($info['values']) && is_array($info['values']) && count($info['values']) > 0) {
           $values = reset($info['values']);
           if (!isset($params['postal_code']) || empty($params['postal_code'])) {
@@ -196,7 +196,7 @@ class CRM_Postcodenl_Updater {
           }
         }
       } elseif (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['street_number']) && isset($params['postal_code']) && !empty($params['street_number']) && !empty($params['postal_code'])) {
-        $info = civicrm_api3('PostcodeNL', 'get', array('postcode' => $params['postal_code'], 'huisnummer' => $params['street_number']));
+        $info = civicrm_api3('PostcodeNL', 'get', ['postcode' => $params['postal_code'], 'huisnummer' => $params['street_number']]);
         if (isset($info['values']) && is_array($info['values']) && count($info['values']) > 0) {
           $values = reset($info['values']);
           if (!isset($params['street_name']) || strtolower($values['adres']) != strtolower($params['street_name'])) {
@@ -228,12 +228,12 @@ class CRM_Postcodenl_Updater {
           }
         }
       } elseif (isset($params['country_id']) && $params['country_id'] == 1152 && isset($params['city']) && !empty($params['city']) && empty($params['state_province_id'])) {
-        $dao = CRM_Core_DAO::executeQuery("SELECT provincie FROM civicrm_postcodenl WHERE woonplaats = %1 GROUP BY provincie", array(
-          1 => array(
+        $dao = CRM_Core_DAO::executeQuery("SELECT provincie FROM civicrm_postcodenl WHERE woonplaats = %1 GROUP BY provincie", [
+          1 => [
             $params['city'],
             'String'
-          )
-        ));
+          ]
+        ]);
         if ($dao->N == 1 && $dao->fetch()) {
           $state_province_id = $this->getProvinceIdByDutchName($dao->provincie);
           if (!empty($state_province_id)) {
@@ -259,11 +259,11 @@ class CRM_Postcodenl_Updater {
   }
 
   public function getProvinceIdByDutchName($province) {
-    $result = civicrm_api3('Address', 'getoptions', array(
+    $result = civicrm_api3('Address', 'getoptions', [
       'sequential' => 1,
       'field' => "state_province_id",
       'country_id' => 1152,
-    ));
+    ]);
     foreach($result['values'] as $state_province) {
       if ($state_province['value'] == $province || $state_province['value'] == ($province .' (NL)') ) {
         return $state_province['key'];
@@ -283,7 +283,7 @@ class CRM_Postcodenl_Updater {
    * @return array
    */
   protected function parseAddress(&$params) {
-    $update_params = array();
+    $update_params = [];
     if (isset($params['country_id']) && $params['country_id'] == 1152) {
       // Fix street unit
       if (empty($params['street_unit']) && is_array($this->street_units)) {
@@ -353,7 +353,7 @@ class CRM_Postcodenl_Updater {
    * @return $result, array holding street_number, street_name and street_unit
    */
   protected function splitStreetAddressNl($streetAddress) {
-    $result = array();
+    $result = [];
     /*
      * do nothing if streetAddress is empty
      */
@@ -445,7 +445,7 @@ class CRM_Postcodenl_Updater {
   protected function updateCustomValues($address_id, $params) {
     $custom_values = CRM_Core_BAO_CustomValueTable::getEntityValues($address_id, 'Address');
 
-    $update_params = array();
+    $update_params = [];
     $this->checkCustomValue($this->gemeente_field, '', $custom_values, $update_params);
     $this->checkCustomValue($this->buurt_field, '', $custom_values, $update_params);
     $this->checkCustomValue($this->buurtcode_field, '', $custom_values, $update_params);
@@ -453,7 +453,7 @@ class CRM_Postcodenl_Updater {
     $this->checkCustomValue($this->provincie_field, '', $custom_values, $update_params);
 
     try {
-      $postcodeParams = array();
+      $postcodeParams = [];
 
       if (isset($params['country_id']) && $params['country_id'] == 1152) {
         if (isset($params['postal_code'])) {

@@ -63,9 +63,9 @@ class CRM_Postcodenl_Upgrader extends CRM_Postcodenl_Upgrader_Base {
   }
 
   protected function removeCustomGroup($group_name) {
-    $gid = civicrm_api3('CustomGroup', 'getValue', array('return' => 'id', 'name' => $group_name));
+    $gid = civicrm_api3('CustomGroup', 'getValue', ['return' => 'id', 'name' => $group_name]);
     if ($gid) {
-      civicrm_api3('CustomGroup', 'delete', array('id' => $gid));
+      civicrm_api3('CustomGroup', 'delete', ['id' => $gid]);
     }
   }
 
