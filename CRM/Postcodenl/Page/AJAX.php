@@ -15,7 +15,7 @@ class CRM_Postcodenl_Page_AJAX {
       'provincie' => 'provincie',
       'cbs_buurtnaam' => 'cbs_buurtnaam'
     ];
-    $field = CRM_Utils_Request::retrieve('field', 'String', CRM_Core_DAO::$_nullObject, FALSE, 'gemeente');
+    $field = CRM_Utils_Request::retrieve('field', 'String', NULL, FALSE, 'gemeente');
     if (!in_array($field, $available_fields)) {
       CRM_Utils_System::civiExit();
     }
@@ -23,7 +23,7 @@ class CRM_Postcodenl_Page_AJAX {
     if (empty($field_name)) {
       CRM_Utils_System::civiExit();
     }
-    $s = CRM_Utils_Request::retrieve('s', 'String', CRM_Core_DAO::$_nullObject, TRUE, '');
+    $s = CRM_Utils_Request::retrieve('s', 'String', NULL, TRUE, '');
     if (empty($s)) {
       CRM_Utils_System::civiExit();
     }

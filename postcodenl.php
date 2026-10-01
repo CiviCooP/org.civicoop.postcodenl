@@ -178,7 +178,7 @@ function postcodenl_civicrm_searchTasks( $objectName, &$tasks ) {
 
 function postcodenl_civicrm_alterContent(  &$content, $context, $tplName, &$object ) {
   if ($object instanceof CRM_Contact_Form_Inline_Address) {
-    $locBlockNo = CRM_Utils_Request::retrieve('locno', 'Positive', CRM_Core_DAO::$_nullObject, TRUE, NULL, $_REQUEST);
+    $locBlockNo = CRM_Utils_Request::retrieve('locno', 'Positive', NULL, TRUE, NULL, $_REQUEST);
     $template = CRM_Core_Smarty::singleton();
     $template->assign('blockId', $locBlockNo);
     $content .= $template->fetch('CRM/Contact/Form/Edit/Address/postcodenl_js.tpl');
