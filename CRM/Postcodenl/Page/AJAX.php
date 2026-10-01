@@ -8,13 +8,13 @@
 class CRM_Postcodenl_Page_AJAX {
   
   function autocomplete() {
-    $available_fields = array(
+    $available_fields = [
       'adres' => 'adres',
       'woonplaats' => 'woonplaats',
       'gemeente' => 'gemeente',
       'provincie' => 'provincie',
       'cbs_buurtnaam' => 'cbs_buurtnaam'
-    );
+    ];
     $field = CRM_Utils_Request::retrieve('field', 'String', CRM_Core_DAO::$_nullObject, FALSE, 'gemeente');
     if (!in_array($field, $available_fields)) {
       CRM_Utils_System::civiExit();

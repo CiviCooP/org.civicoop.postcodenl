@@ -11,11 +11,11 @@ class CRM_Postcodenl_Pro6pp_BatchImport {
   const MAX_LINES_PER_SPLITTED_FILE = 1000;
 
   public static function prepare($authKey, $includeCBSBuurten=true) {
-    $queue = CRM_Queue_Service::singleton()->create(array(
+    $queue = CRM_Queue_Service::singleton()->create([
       'type' => 'Sql',
       'name' => 'org.civicoop.postcodenl.importpro6pp',
       'reset' => TRUE,
-    ));
+    ]);
     self::downloadAndSplitFile($queue, $authKey, 'download_nl_sixpp.zip', 'postcode', ['CRM_Postcodenl_Pro6pp_BatchImport', 'importPostcodes'], 'Importing postcodes %1');
     CRM_Core_DAO::executeQuery("TRUNCATE `civicrm_pro6pp_import`;");
     if ($includeCBSBuurten) {
@@ -28,13 +28,13 @@ class CRM_Postcodenl_Pro6pp_BatchImport {
     CRM_Core_DAO::executeQuery("TRUNCATE `civicrm_postcodenl_alt_city`;");
 
 
-    $runner = new CRM_Queue_Runner(array(
+    $runner = new CRM_Queue_Runner([
       'title' => E::ts('Importing postcodes'), //title fo the queue
       'queue' => $queue, //the queue object
       'errorMode'=> CRM_Queue_Runner::ERROR_ABORT, //abort upon error and keep task in queue
-      'onEnd' => array('CRM_Postcodenl_Pro6pp_BatchImport', 'onEnd'), //method which is called as soon as the queue is finished
+      'onEnd' => ['CRM_Postcodenl_Pro6pp_BatchImport', 'onEnd'], //method which is called as soon as the queue is finished
       'onEndUrl' => CRM_Utils_System::url('civicrm', 'reset=1'), //go to page after all tasks are finished
-    ));
+    ]);
     $runner->runAllViaWeb();
   }
 
@@ -48,7 +48,7 @@ class CRM_Postcodenl_Pro6pp_BatchImport {
       . " (`postcode_nr`, `postcode_letter`, `huisnummer_van`, `huisnummer_tot`, `adres`, `even`, `provincie`, `gemeente`, `woonplaats`, `latitude`, `longitude`)"
       . " VALUES ";
     $values = "";
-    $headers = array();
+    $headers = [];
     $lineNr = 0;
     while (($data = fgetcsv($fp, 0, ',')) !== false) {
       $lineNr++;
@@ -126,7 +126,7 @@ class CRM_Postcodenl_Pro6pp_BatchImport {
       . " (`provincie`, `city`, `alt_city`)"
       . " VALUES ";
     $values = "";
-    $headers = array();
+    $headers = [];
     $lineNr = 0;
     while (($data = fgetcsv($fp, 0, ',')) !== false) {
       $lineNr++;
@@ -170,7 +170,7 @@ class CRM_Postcodenl_Pro6pp_BatchImport {
       . " (`postcode_nr`, `postcode_letter`, `cbs_buurtcode`, `cbs_buurtnaam`, `cbs_wijkcode`)"
       . " VALUES ";
     $values = "";
-    $headers = array();
+    $headers = [];
     $lineNr = 0;
     while (($data = fgetcsv($fp, 0, ',')) !== false) {
       $lineNr++;
