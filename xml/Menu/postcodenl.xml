@@ -10,6 +10,7 @@
     <path>civicrm/ajax/postcodenl/autocomplete</path>
     <page_callback>CRM_Postcodenl_Page_AJAX::autocomplete</page_callback>
     <access_arguments>access CiviCRM</access_arguments>
+    <is_ajax>true</is_ajax>
   </item>
   <item>
     <path>civicrm/contact/updateaddresses</path>
